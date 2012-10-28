@@ -1,5 +1,7 @@
 *.class
 Thumbs.db
+bin\
+gen\
 
 # Package Files #
 *.jar
