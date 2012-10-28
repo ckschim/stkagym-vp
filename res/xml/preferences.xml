@@ -2,18 +2,26 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory 
-        android:title="First Category"
-        android:key="gradeChoice_category">
+    <!--<PreferenceCategory 
+        android:title=""
+        android:key="gradeChoice_category">-->
         
         
         <ListPreference 
             android:key="grades_list"
-            android:title="Stufenliste"
-            android:summary="Auswahl der Stufe"
+            android:title="@string/settings_grade"
+            android:summary="@string/settings_grade_summary"
             android:entries="@array/grades"
             android:entryValues="@array/gradesValues"
         />
-      </PreferenceCategory>   
+        
+        <ListPreference 
+            android:key="subgrades_list"
+            android:title="@string/settings_subgrade"
+            android:summary="@string/settings_subgrade_summary"
+            android:entries="@array/subgrades"
+            android:entryValues="@array/subgradesValues"
+        />
+      <!-- </PreferenceCategory>-->
     
 </PreferenceScreen>

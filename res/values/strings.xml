@@ -8,5 +8,9 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_settings">Einstellungen</string>
     <string name="settings">Einstellungen</string>
+    <string name="settings_grade">Stufe</string>
+    <string name="settings_grade_summary">Auswahl der Stufe</string>
+    <string name="settings_subgrade">Klasse</string>
+    <string name="settings_subgrade_summary">Auswahl der Klasse</string>
 
 </resources>

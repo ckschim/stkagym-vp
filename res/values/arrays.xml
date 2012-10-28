@@ -17,9 +17,29 @@
         <item name="7"  >7</item>
         <item name="8"  >8</item>
         <item name="9"  >9</item>
-        <item name="10" >10</item>
-        <item name="11" >11</item>
-        <item name="12" >12</item>
+        <item name="10" >EF</item>
+        <item name="11" >Q1</item>
+        <item name="12" >Q2</item>
+    </string-array>
+    
+    <string-array name="subgrades">
+        <item name="a" >A</item>
+        <item name="b" >B</item>
+        <item name="c" >C</item>
+        <item name="d" >D</item>
+        <item name="e" >E</item>
+        <item name="f" >F</item>
+        <item name="g" >G</item>
+    </string-array>
+    
+    <string-array name="subgradesValues">
+        <item name="a" >A</item>
+        <item name="b" >B</item>
+        <item name="c" >C</item>
+        <item name="d" >D</item>
+        <item name="e" >E</item>
+        <item name="f" >F</item>
+        <item name="g" >G</item>
     </string-array>
     
     
