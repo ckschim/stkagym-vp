@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="grades">
-        <item >5</item>
-        <item >6</item>
-        <item >7</item>
-        <item >8</item>
-        <item >9</item>
-        <item >Eph</item>
-        <item >Q1</item>
-        <item >Q2</item>
+        <item name="5"  >5.</item>
+        <item name="6"  >6.</item>
+        <item name="7"  >7.</item>
+        <item name="8"  >8.</item>
+        <item name="9"  >9.</item>
+        <item name="10" >Eph</item>
+        <item name="11" >Q1</item>
+        <item name="12" >Q2</item>
     </string-array>
+    
+    <string-array name="gradesValues">
+        <item name="5"  >5</item>
+        <item name="6"  >6</item>
+        <item name="7"  >7</item>
+        <item name="8"  >8</item>
+        <item name="9"  >9</item>
+        <item name="10" >10</item>
+        <item name="11" >11</item>
+        <item name="12" >12</item>
+    </string-array>
+    
     
 </resources>

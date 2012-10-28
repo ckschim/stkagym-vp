@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory 
+        android:title="First Category"
+        android:key="gradeChoice_category">
+        
+        
+        <ListPreference 
+            android:key="grades_list"
+            android:title="Stufenliste"
+            android:summary="Auswahl der Stufe"
+            android:entries="@array/grades"
+            android:entryValues="@array/gradesValues"
+        />
+      </PreferenceCategory>   
+    
+</PreferenceScreen>
