@@ -12,7 +12,7 @@
     <string name="settings_grade_summary">Auswahl der Stufe</string>
     <string name="settings_subgrade">Klasse</string>
     <string name="settings_subgrade_summary">Auswahl der Klasse</string>
-    <string name="refresh_button">Refresh</string>
-    <string name="subgrade_string"> </string>
+    <string name="refresh_button">Aktual.</string>
+    <string name="subgrade_string"></string>
 
 </resources>

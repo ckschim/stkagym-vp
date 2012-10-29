@@ -33,7 +33,7 @@
         android:layout_above="@+id/substitution_data"
         android:layout_alignParentRight="true"
         android:text="@string/refresh_button" />
-
+
     <TextView
         android:id="@+id/subgrade"
         android:layout_width="wrap_content"

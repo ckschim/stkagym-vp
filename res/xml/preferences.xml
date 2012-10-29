@@ -1,27 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <!--<PreferenceCategory 
+    <!--
+        <PreferenceCategory 
         android:title=""
-        android:key="gradeChoice_category">-->
-        
-        
-        <ListPreference 
-            android:key="grades_list"
-            android:title="@string/settings_grade"
-            android:summary="@string/settings_grade_summary"
-            android:entries="@array/grades"
-            android:entryValues="@array/gradesValues"
-        />
-        
-        <ListPreference 
-            android:key="subgrades_list"
-            android:title="@string/settings_subgrade"
-            android:summary="@string/settings_subgrade_summary"
-            android:entries="@array/subgrades"
-            android:entryValues="@array/subgradesValues"
-        />
-      <!-- </PreferenceCategory>-->
-    
+        android:key="gradeChoice_category">
+    -->
+
+    <ListPreference
+        android:entries="@array/grades"
+        android:entryValues="@array/gradesValues"
+        android:key="grades_list"
+        android:summary="@string/settings_grade_summary"
+        android:title="@string/settings_grade" />
+    <ListPreference
+        android:entries="@array/subgrades"
+        android:entryValues="@array/subgradesValues"
+        android:key="subgrades_list"
+        android:summary="@string/settings_subgrade_summary"
+        android:title="@string/settings_subgrade" />
+    <!-- </PreferenceCategory> -->
+
 </PreferenceScreen>
