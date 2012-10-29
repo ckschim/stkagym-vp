@@ -14,53 +14,51 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		/* Auslesen der Einstellungen beim Start */
-		String grade = getGradePrefs();
-		TextView gradeTextView = (TextView) findViewById(R.id.grade);
-		gradeTextView.setText(grade);
-		String subgrade = getSubgradePrefs();
-		TextView subgradeTextView = (TextView) findViewById(R.id.subgrade);
-		subgradeTextView.setText(subgrade);
+		/* Anwenden der Einstellungen beim Start */
+		applySettings();
 
 		final Button button = (Button) findViewById(R.id.button_refresh); // Refresh-Button
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				/*
-				 * Hier wird werden wiederdie Einstellungen ausgelesen
-				 */
-				String grade = getGradePrefs();
-				TextView gradeTextView = (TextView) findViewById(R.id.grade);
-				gradeTextView.setText(grade);
-				String subgrade = getSubgradePrefs();
-				TextView subgradeTextView = (TextView) findViewById(R.id.subgrade);
-				subgradeTextView.setText(subgrade);
+				refreshData();
 			}
 		});
 	}
 
+	private void refreshData() {
+		// Daten auslesen
+	}
+
+	public void applySettings() {
+		// (Ge√§nderte) Einstellungen anwenden
+		String grade = getGradePrefs();
+		String subgrade = getSubgradePrefs();
+
+		String identifier = grade.concat(subgrade);
+		TextView gradeTextView = (TextView) findViewById(R.id.grade);
+		gradeTextView.setText(identifier);
+		refreshData();
+	}
+
 	/*
-	 * Hier holt der sich einfach nur den gew‰hlten String der Stufenauswahl.
-	 * Selbsterk‰rend, denke ich.
+	 * Hier holt der sich einfach nur den gew√§hlten String der Stufenauswahl.
+	 * Selbsterk√§rend, denke ich.
 	 */
 
 	public String getGradePrefs() {
-		String ListGradePref;
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(getBaseContext());
-		ListGradePref = prefs.getString("grades_list", "");
-		return ListGradePref;
+		return prefs.getString("grades_list", "");
 
 	}
 
 	public String getSubgradePrefs() {
-		String ListSubgradePref;
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(getBaseContext());
-		ListSubgradePref = prefs.getString("subgrades_list", "");
-		return ListSubgradePref;
+		return prefs.getString("subgrades_list", "");
 	}
 
-	/* Erstellung des Menu-Button Men¸s */
+	/* Erstellung des Menu-Button Men√ºs */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
@@ -68,7 +66,7 @@ public class MainActivity extends Activity {
 	}
 
 	/*
-	 * Verhalten bei Auswahl eines Items des Men¸s
+	 * Verhalten bei Auswahl eines Items des Men√ºs
 	 * 
 	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
 	 */
