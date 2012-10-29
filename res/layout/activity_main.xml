@@ -25,4 +25,13 @@
         android:text="@string/placeholder_data"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
+    <Button
+        android:id="@+id/button_refresh"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/substitution_data"
+        android:layout_alignParentRight="true"
+        android:text="@string/refresh_button" />
+
 </RelativeLayout>
