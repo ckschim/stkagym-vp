@@ -10,16 +10,26 @@ import android.widget.*;
 
 public class MainActivity extends Activity {
  
-
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        String grade = getPrefs(); 
+        String grade = getGradePrefs(); 
         TextView gradeTextView = (TextView)findViewById(R.id.grade);  //Zum Start lädt er dann direkt den String von den Einstellungen
         gradeTextView.setText(grade);
+        String subgrade = getSubgradePrefs();
+        TextView subgradeTextView = (TextView)findViewById(R.id.subgrade);
+        if(grade.equals("Q1") || grade.equals("Eph") || grade.equals("Q2")) //Vermeidung von unerwünschten Zusätzen zur Oberstufe durch alte Einträge :D
+        {
+        	subgradeTextView.setText("");
+        }
+        else
+        {
+        subgradeTextView.setText(subgrade);
+        }
         
-        final Button button = (Button) findViewById(R.id.button_refresh);
+        final Button button = (Button) findViewById(R.id.button_refresh);  //Refresh-Button
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	Intent intent = getIntent();
@@ -30,13 +40,20 @@ public class MainActivity extends Activity {
         }
     
     //Hier holt der sich einfach nur den gewählten String der Stufenauswahl. Selbsterkärend, denke ich.
-    String ListPref;
-    public String getPrefs()
+    String ListGradePref;
+    public String getGradePrefs()
     {
     	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-    	ListPref = prefs.getString("grades_list", "");
-    	return ListPref;
+    	ListGradePref = prefs.getString("grades_list", "");
+    	return ListGradePref;
     	
+    }
+    String ListSubgradePref;
+    public String getSubgradePrefs()
+    {
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    	ListSubgradePref = prefs.getString("subgrades_list", "");
+    	return ListSubgradePref;
     }
 
     @Override
@@ -58,5 +75,6 @@ public class MainActivity extends Activity {
                 return super.onOptionsItemSelected(item);
         }
     }
+    
    
 }
