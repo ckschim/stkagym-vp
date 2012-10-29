@@ -1,7 +1,8 @@
 package com.fqsmobile.stkagym_vp;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 
 public class SettingsActivity extends PreferenceActivity {
@@ -11,17 +12,18 @@ public class SettingsActivity extends PreferenceActivity {
 	protected void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	addPreferencesFromResource(R.xml.preferences);
-    }
     
-    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key){
-    	//TODO: Funktioniert nicht. Keine Ahnung warum.
-    	if(key.equals("grades_list")) {
-    		String grade = sharedPreferences.getString("grades_list", "");
-    		if(grade.equals("EF") || grade.equals("Q1") || grade.equals("Q2"))
-    			getPreferenceScreen().findPreference("subgrades_list").setEnabled(false);
-    		else
-    			getPreferenceScreen().findPreference("subgrades_list").setEnabled(true);
-    	}
-    		
-    };
+	    final ListPreference gradesList = (ListPreference)findPreference("grades_list");
+	    final ListPreference subgradesList = (ListPreference)findPreference("subgrades_list");
+	    
+	    gradesList.setOnPreferenceChangeListener(
+		    new Preference.OnPreferenceChangeListener() {
+		    	public boolean onPreferenceChange(Preference preference, Object newValue){
+		        	final String val = newValue.toString();
+		        	subgradesList.setEnabled(!(val.equals("EF") || val.equals("Q1") || val.equals("Q2")));
+		        	return true;
+		    	}
+		    }
+		);
+    }
 }
