@@ -27,8 +27,8 @@
             android:label="@string/menu_settings" >
         </activity>
         <instrumentation android:name="android.test.InstrumentationTestRunner"
-    	android:targetPackage="your.package"
-    	android:label="your tests label" />
+    	android:targetPackage="com.fqsmobile.stkagym_vp"
+    	android:label="Vertretungsplan" />
         <uses-library android:name="android.test.runner" />
     </application>
 
