@@ -6,6 +6,8 @@
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="15" />
+    
+    
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -24,6 +26,10 @@
             android:name=".SettingsActivity"
             android:label="@string/menu_settings" >
         </activity>
+        <instrumentation android:name="android.test.InstrumentationTestRunner"
+    	android:targetPackage="your.package"
+    	android:label="your tests label" />
+        <uses-library android:name="android.test.runner" />
     </application>
 
 </manifest>

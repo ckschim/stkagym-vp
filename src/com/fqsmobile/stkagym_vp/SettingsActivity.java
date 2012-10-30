@@ -1,5 +1,6 @@
 package com.fqsmobile.stkagym_vp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -8,6 +9,8 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
 public class SettingsActivity extends PreferenceActivity {
+	
+	MainActivity mainactivity = new MainActivity();
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -34,5 +37,14 @@ public class SettingsActivity extends PreferenceActivity {
 		final ListPreference subgradesList = (ListPreference) findPreference("subgrades_list");
 		subgradesList.setEnabled(!(grade.equals("EF") || grade.equals("Q1") || grade.equals("Q2")));
 		subgradesList.setValue(""); // Leeren
+	}
+	
+	@Override
+	public void onBackPressed() {
+		Intent activity_intent = new Intent();
+		activity_intent.setClass(getApplicationContext(), MainActivity.class);
+		startActivity(activity_intent);
+		this.finish();
+		return;
 	}
 }

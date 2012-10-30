@@ -73,13 +73,18 @@ public class MainActivity extends Activity {
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.menu_settings:
-			Intent activity_intent = new Intent();
-			activity_intent.setClass(getApplicationContext(), SettingsActivity.class);
-			startActivity(activity_intent);
+			Intent settings_intent = new Intent();
+			settings_intent.setClass(getApplicationContext(), SettingsActivity.class);
+			startActivity(settings_intent);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	public boolean isInitialized() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
