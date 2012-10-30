@@ -22,6 +22,8 @@ import android.view.*;
 import android.widget.*;
 
 public class MainActivity extends Activity {
+	String identifier;
+
 	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -43,8 +45,30 @@ public class MainActivity extends Activity {
 	}
 
 	private void refreshData() {
-		// Daten auslesen
-		String res = getHttpText("http://www.gymnasium-kamen.de/pages/vp.html");
+		// Daten auslesen. 1337 h4xx02 57y13.
+		String res = "";
+		String data = getHttpText("http://www.gymnasium-kamen.de/pages/vp.html");
+
+		String[] split = data.split("<TD COLSPAN=5 BGCOLOR=\"#028015\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
+				+ "</FONT></B></CENTER></TD>");
+		
+		if(split.length <= 1)
+			res = "Es gibt aktuell keine Änderungen";
+		else
+		{
+			split = split[1].split("<TD COLSPAN=5 BGCOLOR=\"#028015\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
+			String[] dataset = split[0].split("<TR>");
+			for(int i = 1; i < dataset.length-1; i++) {
+				String d = dataset[i].replaceAll("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">", "");
+				d = d.replaceAll("</FONT></CENTER></TD>", "");
+				d = d.replaceAll("</TR>", "");
+				d = d.replaceAll("\n", "");
+				d = d.replaceAll("----- ", "");
+				d = d.replaceAll("==&gt;", "→\n\t\t");
+				res += d+"\n\n";
+			}
+		}
+		
 		TextView substTextView = (TextView) findViewById(R.id.substitution_data);
 		substTextView.setText(res);
 	}
@@ -54,7 +78,7 @@ public class MainActivity extends Activity {
 		String grade = getGradePrefs();
 		String subgrade = getSubgradePrefs();
 
-		String identifier = grade.concat(subgrade);
+		identifier = grade.concat(subgrade);
 		TextView gradeTextView = (TextView) findViewById(R.id.grade);
 		gradeTextView.setText(identifier);
 		refreshData();
@@ -104,7 +128,7 @@ public class MainActivity extends Activity {
 
 	/* Von stackoverflow */
 	public static String getHttpText(String url) {
-		String result = "fehler";
+		String result = "";
 		HttpClient httpclient = new DefaultHttpClient();
 
 		// Prepare a request object
