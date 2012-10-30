@@ -12,11 +12,11 @@
         <item name="12">Q2</item>
     </string-array>
     <string-array name="gradesValues">
-        <item name="5">5</item>
-        <item name="6">6</item>
-        <item name="7">7</item>
-        <item name="8">8</item>
-        <item name="9">9</item>
+        <item name="5">05</item>
+        <item name="6">06</item>
+        <item name="7">07</item>
+        <item name="8">08</item>
+        <item name="9">09</item>
         <item name="10">EF</item>
         <item name="11">Q1</item>
         <item name="12">Q2</item>
