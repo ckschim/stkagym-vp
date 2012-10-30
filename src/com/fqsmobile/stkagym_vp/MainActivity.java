@@ -48,27 +48,28 @@ public class MainActivity extends Activity {
 		// Daten auslesen. 1337 h4xx02 57y13.
 		String res = "";
 		String data = getHttpText("http://www.gymnasium-kamen.de/pages/vp.html");
+		if (data.length() <= 1)
+			return;
 
 		String[] split = data.split("<TD COLSPAN=5 BGCOLOR=\"#028015\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
 				+ "</FONT></B></CENTER></TD>");
-		
-		if(split.length <= 1)
+
+		if (split.length <= 1)
 			res = "Es gibt aktuell keine Änderungen";
-		else
-		{
+		else {
 			split = split[1].split("<TD COLSPAN=5 BGCOLOR=\"#028015\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 			String[] dataset = split[0].split("<TR>");
-			for(int i = 1; i < dataset.length-1; i++) {
+			for (int i = 1; i < dataset.length - 1; i++) {
 				String d = dataset[i].replaceAll("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">", "");
 				d = d.replaceAll("</FONT></CENTER></TD>", "");
 				d = d.replaceAll("</TR>", "");
 				d = d.replaceAll("\n", "");
 				d = d.replaceAll("----- ", "");
 				d = d.replaceAll("==&gt;", "→\n\t\t");
-				res += d+"\n\n";
+				res += d + "\n\n";
 			}
 		}
-		
+
 		TextView substTextView = (TextView) findViewById(R.id.substitution_data);
 		substTextView.setText(res);
 	}
