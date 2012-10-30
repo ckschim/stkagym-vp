@@ -46,15 +46,13 @@ public class MainActivity extends Activity {
 	 */
 
 	public String getGradePrefs() {
-		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(getBaseContext());
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 		return prefs.getString("grades_list", "");
 
 	}
 
 	public String getSubgradePrefs() {
-		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(getBaseContext());
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 		return prefs.getString("subgrades_list", "");
 	}
 
@@ -76,8 +74,7 @@ public class MainActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.menu_settings:
 			Intent activity_intent = new Intent();
-			activity_intent.setClass(getApplicationContext(),
-					SettingsActivity.class);
+			activity_intent.setClass(getApplicationContext(), SettingsActivity.class);
 			startActivity(activity_intent);
 			return true;
 		default:
