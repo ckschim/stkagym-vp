@@ -14,5 +14,9 @@
     <string name="refresh_button">Aktual.</string>
     <string name="subgrade_string"></string>
     <string name="placeholder_date">Datum</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_version_number">0.1</string>
+    <string name="settings_category_gradeChoice">Filter</string>
+    <string name="settings_category_info">Info</string>
     
 </resources>
