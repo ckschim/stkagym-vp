@@ -9,7 +9,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
 public class SettingsActivity extends PreferenceActivity {
-	
+
 	MainActivity mainactivity = new MainActivity();
 
 	@SuppressWarnings("deprecation")
@@ -19,9 +19,9 @@ public class SettingsActivity extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.preferences);
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-		String grade =  prefs.getString("grades_list", "");
+		String grade = prefs.getString("grades_list", "");
 		checkGrade(grade);
-		
+
 		final ListPreference gradesList = (ListPreference) findPreference("grades_list");
 
 		gradesList.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -38,7 +38,7 @@ public class SettingsActivity extends PreferenceActivity {
 		subgradesList.setEnabled(!(grade.equals("EF") || grade.equals("Q1") || grade.equals("Q2")));
 		subgradesList.setValue(""); // Leeren
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		Intent activity_intent = new Intent();

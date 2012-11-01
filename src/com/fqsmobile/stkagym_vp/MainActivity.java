@@ -48,30 +48,33 @@ public class MainActivity extends Activity {
 
 	private void refreshData() {
 		// Daten auslesen. 1337 h4xx02 57y13. <--- :D
+		TextView substTextView = (TextView) findViewById(R.id.substitution_data);
+		TextView dateTextView = (TextView) findViewById(R.id.substDate);
 		String res = "";
 		String date = "";
 		String pattern = "\\<FONT FACE\\=\"Arial\"\\>\\<H3\\>\\<CENTER\\>V(.*)\\<\\/CENTER\\>";
 		Pattern datePattern = Pattern.compile(pattern);
 		String data = getHttpText("http://www.gymnasium-kamen.de/pages/vp.html");
 		Matcher dateMatcher = datePattern.matcher(data);
-		
+
 		if (data.length() <= 1)
 			return;
-		
-		if (dateMatcher.find())
-		{
+
+		if (dateMatcher.find()) {
 			date = dateMatcher.group();
 			date = date.replace("<FONT FACE=\"Arial\"><H3><CENTER>Vertretungsplan f&uuml;r", "");
 			date = date.replace("</CENTER>", "");
 		}
-		
-				
 
 		String[] split = data.split("<TD COLSPAN=5 BGCOLOR=\"#028015\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
 				+ "</FONT></B></CENTER></TD>");
 
 		if (split.length <= 1)
-			res = "Es gibt aktuell keine Änderungen";
+			if (identifier != "") {
+				res = "Es gibt aktuell keine Änderungen";
+			} else {
+				res = getString(R.string.placeholder_data);
+			}
 		else {
 			split = split[1].split("<TD COLSPAN=5 BGCOLOR=\"#028015\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 			String[] dataset = split[0].split("<TR>");
@@ -86,13 +89,10 @@ public class MainActivity extends Activity {
 			}
 		}
 
-		
-		TextView substTextView = (TextView) findViewById(R.id.substitution_data);
 		substTextView.setText(res);
 		substTextView.setMovementMethod(new ScrollingMovementMethod());
-		TextView dateTextView = (TextView) findViewById(R.id.substDate);
 		dateTextView.setText(date);
-		
+
 	}
 
 	public void applySettings() {
