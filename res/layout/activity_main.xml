@@ -23,7 +23,10 @@
         android:layout_marginLeft="10dp"
         android:layout_marginTop="15dp"
         android:text="@string/placeholder_data"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceSmall" 
+        android:maxLines = "25"
+        android:scrollbars ="vertical"        
+        />
 
     <Button
         android:id="@+id/button_refresh"
