@@ -3,14 +3,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
+    <Button
+        android:id="@+id/button_refresh"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="@string/refresh_button" />
+
     <TextView
         android:id="@+id/grade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="20dp"
+        android:layout_below="@+id/button_refresh"
+        android:layout_marginLeft="14dp"
         android:text="@string/placeholder_grade"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -20,21 +27,20 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/grade"
         android:layout_below="@+id/grade"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="21dp"
+        android:maxLines="25"
+        android:scrollbars="vertical"
         android:text="@string/placeholder_data"
-        android:textAppearance="?android:attr/textAppearanceSmall" 
-        android:maxLines = "25"
-        android:scrollbars ="vertical"        
-        />
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
-    <Button
-        android:id="@+id/button_refresh"
-        style="?android:attr/buttonStyleSmall"
+    <TextView
+        android:id="@+id/substDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/substitution_data"
-        android:layout_alignParentRight="true"
-        android:text="@string/refresh_button" />
+        android:layout_alignBaseline="@+id/button_refresh"
+        android:layout_alignBottom="@+id/button_refresh"
+        android:layout_alignLeft="@+id/grade"
+        android:text="@string/placeholder_date"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

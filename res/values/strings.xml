@@ -5,7 +5,6 @@
     <string name="title_activity_main">Vertretungsplan</string>
     <string name="placeholder_grade">Stufe</string>
     <string name="placeholder_data">Placeholder:\nBitte erst Einstellungen vornehmen.\nMenü > Einstellungen\n</string>
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_settings">Einstellungen</string>
     <string name="settings">Einstellungen</string>
     <string name="settings_grade">Stufe</string>
@@ -14,5 +13,6 @@
     <string name="settings_subgrade_summary">Auswahl der Klasse</string>
     <string name="refresh_button">Aktual.</string>
     <string name="subgrade_string"></string>
-
+    <string name="placeholder_date">Datum</string>
+    
 </resources>

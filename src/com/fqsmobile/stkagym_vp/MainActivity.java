@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -45,11 +47,25 @@ public class MainActivity extends Activity {
 	}
 
 	private void refreshData() {
-		// Daten auslesen. 1337 h4xx02 57y13.
+		// Daten auslesen. 1337 h4xx02 57y13. <--- :D
 		String res = "";
+		String date = "";
+		String pattern = "\\<FONT FACE\\=\"Arial\"\\>\\<H3\\>\\<CENTER\\>V(.*)\\<\\/CENTER\\>";
+		Pattern datePattern = Pattern.compile(pattern);
 		String data = getHttpText("http://www.gymnasium-kamen.de/pages/vp.html");
+		Matcher dateMatcher = datePattern.matcher(data);
+		
 		if (data.length() <= 1)
 			return;
+		
+		if (dateMatcher.find())
+		{
+			date = dateMatcher.group();
+			date = date.replace("<FONT FACE=\"Arial\"><H3><CENTER>Vertretungsplan f&uuml;r", "");
+			date = date.replace("</CENTER>", "");
+		}
+		
+				
 
 		String[] split = data.split("<TD COLSPAN=5 BGCOLOR=\"#028015\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
 				+ "</FONT></B></CENTER></TD>");
@@ -70,9 +86,13 @@ public class MainActivity extends Activity {
 			}
 		}
 
+		
 		TextView substTextView = (TextView) findViewById(R.id.substitution_data);
 		substTextView.setText(res);
 		substTextView.setMovementMethod(new ScrollingMovementMethod());
+		TextView dateTextView = (TextView) findViewById(R.id.substDate);
+		dateTextView.setText(date);
+		
 	}
 
 	public void applySettings() {
