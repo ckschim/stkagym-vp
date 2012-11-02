@@ -23,7 +23,7 @@
 
     <TextView
         android:id="@+id/substitution_data"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/grade"
         android:layout_below="@+id/grade"
