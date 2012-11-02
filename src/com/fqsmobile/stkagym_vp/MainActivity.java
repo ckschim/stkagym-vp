@@ -13,8 +13,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -31,67 +31,89 @@ public class MainActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (android.os.Build.VERSION.SDK_INT >= 9) {
-			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-			StrictMode.setThreadPolicy(policy);
-		}
 		setContentView(R.layout.activity_main);
 		/* Anwenden der Einstellungen beim Start */
 		applySettings();
 		final Button button = (Button) findViewById(R.id.button_refresh); // Refresh-Button
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				refreshData();
+				new getData().execute();
 			}
 		});
 	}
 
-	private void refreshData() {
-		// Daten auslesen. 1337 h4xx02 57y13. <--- :D
-		TextView substTextView = (TextView) findViewById(R.id.substitution_data);
-		TextView dateTextView = (TextView) findViewById(R.id.substDate);
+	private class getData extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
+			bar.setVisibility(View.VISIBLE);
+
+		}
+
 		String res = "";
 		String date = "";
-		String pattern = "\\<FONT FACE\\=\"Arial\"\\>\\<H3\\>\\<CENTER\\>V(.*)\\<\\/CENTER\\>";
-		Pattern datePattern = Pattern.compile(pattern);
-		String data = getHttpText("http://www.gymnasium-kamen.de/pages/vp.html");
-		Matcher dateMatcher = datePattern.matcher(data);
+		
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			
+			String pattern = "\\<FONT FACE\\=\"Arial\"\\>\\<H3\\>\\<CENTER\\>V(.*)\\<\\/CENTER\\>";
+			Pattern datePattern = Pattern.compile(pattern);
+			String data = getHttpText("http://www.gymnasium-kamen.de/pages/vp.html");
+			Matcher dateMatcher = datePattern.matcher(data);
 
-		if (data.length() <= 1)
-			return;
+			if (data.length() <= 1)
+				return null;
 
-		if (dateMatcher.find()) {
-			date = dateMatcher.group();
-			date = date.replace("<FONT FACE=\"Arial\"><H3><CENTER>Vertretungsplan f&uuml;r", "");
-			date = date.replace("</CENTER>", "");
+			if (dateMatcher.find()) {
+				date = dateMatcher.group();
+				date = date.replace("<FONT FACE=\"Arial\"><H3><CENTER>Vertretungsplan f&uuml;r", "");
+				date = date.replace("</CENTER>", "");
+			}
+
+			String[] split = data.split("<TD COLSPAN=5 BGCOLOR=\"#028015\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
+					+ "</FONT></B></CENTER></TD>");
+
+			if (split.length <= 1)
+				if (identifier != "") {
+					res = "Es gibt aktuell keine Änderungen";
+				} else {
+					res = getString(R.string.placeholder_data);
+				}
+			else {
+				split = split[1].split("<TD COLSPAN=5 BGCOLOR=\"#028015\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
+				String[] dataset = split[0].split("<TR>");
+				for (int i = 1; i < dataset.length - 1; i++) {
+					String d = dataset[i].replaceAll("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">", "");
+					d = d.replaceAll("</FONT></CENTER></TD>", "");
+					d = d.replaceAll("</TR>", "");
+					d = d.replaceAll("\n", "");
+					d = d.replaceAll("----- ", "");
+					d = d.replaceAll("==&gt;", "→\n\t\t");
+					res += d + "\n\n";
+				}
+			}
+
+			
+			return null;
 		}
 
-		String[] split = data.split("<TD COLSPAN=5 BGCOLOR=\"#028015\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
-				+ "</FONT></B></CENTER></TD>");
-
-		if (split.length <= 1)
-			if (identifier != "") {
-				res = "Es gibt aktuell keine Änderungen";
-			} else {
-				res = getString(R.string.placeholder_data);
-			}
-		else {
-			split = split[1].split("<TD COLSPAN=5 BGCOLOR=\"#028015\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
-			String[] dataset = split[0].split("<TR>");
-			for (int i = 1; i < dataset.length - 1; i++) {
-				String d = dataset[i].replaceAll("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">", "");
-				d = d.replaceAll("</FONT></CENTER></TD>", "");
-				d = d.replaceAll("</TR>", "");
-				d = d.replaceAll("\n", "");
-				d = d.replaceAll("----- ", "");
-				d = d.replaceAll("==&gt;", "→\n\t\t");
-				res += d + "\n\n";
-			}
+		@Override
+		protected void onProgressUpdate(Void... values){
+			super.onProgressUpdate(values);
 		}
-
-		substTextView.setText(res);
-		substTextView.setMovementMethod(new ScrollingMovementMethod());
-		dateTextView.setText(date);
+		
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			TextView substTextView = (TextView) findViewById(R.id.substitution_data);
+			TextView dateTextView = (TextView) findViewById(R.id.substDate);
+			substTextView.setText(res);
+			substTextView.setMovementMethod(new ScrollingMovementMethod());
+			dateTextView.setText(date);
+			ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
+			bar.setVisibility(View.INVISIBLE);
+		}
 
 	}
 
@@ -103,7 +125,7 @@ public class MainActivity extends Activity {
 		identifier = grade.concat(subgrade);
 		TextView gradeTextView = (TextView) findViewById(R.id.grade);
 		gradeTextView.setText(identifier);
-		refreshData();
+		new getData().execute();
 	}
 
 	/*

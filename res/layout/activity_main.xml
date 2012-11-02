@@ -43,4 +43,11 @@
         android:text="@string/placeholder_date"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/substitution_data"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
