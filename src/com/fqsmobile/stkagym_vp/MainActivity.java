@@ -12,6 +12,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -54,22 +55,23 @@ public class MainActivity extends Activity {
 
 		String res = "";
 		String date = "";
-		
+
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			
-			String pattern = "\\<FONT FACE\\=\"Arial\"\\>\\<H3\\>\\<CENTER\\>V(.*)\\<\\/CENTER\\>";
-			Pattern datePattern = Pattern.compile(pattern);
-			String data = getHttpText("http://www.gymnasium-kamen.de/pages/vp.html");
-			Matcher dateMatcher = datePattern.matcher(data);
 
+			String data = getHttpText("http://www.gymnasium-kamen.de/pages/vp.html");
 			if (data.length() <= 1)
 				return null;
 
+			String pattern = "\\<FONT FACE\\=\"Arial\"\\>\\<H3\\>\\<CENTER\\>Vertretungsplan f&uuml;r (.*)\\<\\/CENTER\\>";
+			Pattern datePattern = Pattern.compile(pattern);
+			Matcher dateMatcher = datePattern.matcher(data);
+
 			if (dateMatcher.find()) {
-				date = dateMatcher.group();
-				date = date.replace("<FONT FACE=\"Arial\"><H3><CENTER>Vertretungsplan f&uuml;r", "");
-				date = date.replace("</CENTER>", "");
+				date = dateMatcher.group(1);
+			} else {
+				res = "Fehler: Unvollständige Daten";
+				return null;
 			}
 
 			String[] split = data.split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
@@ -93,17 +95,17 @@ public class MainActivity extends Activity {
 					d = d.replaceAll("==&gt;", "→\n\t\t");
 					res += d + "\n\n";
 				}
+				res = StringEscapeUtils.unescapeHtml4(res);
 			}
 
-			
 			return null;
 		}
 
 		@Override
-		protected void onProgressUpdate(Void... values){
+		protected void onProgressUpdate(Void... values) {
 			super.onProgressUpdate(values);
 		}
-		
+
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			TextView substTextView = (TextView) findViewById(R.id.substitution_data);
