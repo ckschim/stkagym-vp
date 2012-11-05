@@ -72,7 +72,7 @@ public class MainActivity extends Activity {
 				date = date.replace("</CENTER>", "");
 			}
 
-			String[] split = data.split("<TD COLSPAN=5 BGCOLOR=\"#028015\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
+			String[] split = data.split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
 					+ "</FONT></B></CENTER></TD>");
 
 			if (split.length <= 1)
@@ -82,7 +82,7 @@ public class MainActivity extends Activity {
 					res = getString(R.string.placeholder_data);
 				}
 			else {
-				split = split[1].split("<TD COLSPAN=5 BGCOLOR=\"#028015\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
+				split = split[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 				String[] dataset = split[0].split("<TR>");
 				for (int i = 1; i < dataset.length - 1; i++) {
 					String d = dataset[i].replaceAll("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">", "");
