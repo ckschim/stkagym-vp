@@ -4,6 +4,6 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="lib" path="/home/lars/Software/Dev/eclipse/stkagym-vp/libs/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="libs/commons-lang3-3.1.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
