@@ -74,31 +74,58 @@ public class MainActivity extends Activity {
 				return null;
 			}
 
-			String[] split = data.split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
+			// Vertretungen
+			String[] v = data.split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
 					+ "</FONT></B></CENTER></TD>");
 
-			if (split.length <= 1)
+			if (v.length > 1) {
+				res += "Vertretungen:\n\n";
+				v = v[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
+				String[] v_dataset = v[0].split("</TR>");
+				res += formatDataset(v_dataset);
+			}
+
+			// Klausuren
+
+			String[] k = data.split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">K" + identifier
+					+ "[a-z]</FONT></B></CENTER></TD>");
+
+			if (k.length > 1) {
+				res += "Klausuren:\n\n";
+				for(int i = 1; i < k.length; i++) {
+					String[] buf = k[i].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
+					String[] set = buf[0].split("</TR>");
+					res += formatDataset(set);
+				}
+			}
+
+			if (res == "") {
 				if (identifier != "") {
 					res = "Es gibt aktuell keine Änderungen";
 				} else {
-					res = getString(R.string.placeholder_data);
+					res = "Bitte erst Einstellungen vornehmen.\nMenü → Einstellungen\n";
 				}
-			else {
-				split = split[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
-				String[] dataset = split[0].split("<TR>");
-				for (int i = 1; i < dataset.length - 1; i++) {
-					String d = dataset[i].replaceAll("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">", "");
-					d = d.replaceAll("</FONT></CENTER></TD>", "");
-					d = d.replaceAll("</TR>", "");
-					d = d.replaceAll("\n", "");
-					d = d.replaceAll("----- ", "");
-					d = d.replaceAll("==&gt;", "→\n\t\t");
-					res += d + "\n\n";
-				}
+			} else {
 				res = StringEscapeUtils.unescapeHtml4(res);
 			}
 
 			return null;
+		}
+
+		private String formatDataset(String[] pDataset) {
+			String res = "";
+			for (int i = 1; i < pDataset.length - 1; i++) {
+				String d = pDataset[i].replaceAll("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">", "");
+				d = d.replaceAll("</FONT></CENTER></TD>", "");
+				d = d.replaceAll("<TR>", "");
+				d = d.replaceAll("\n", "");
+				d = d.replaceAll("----- ", "");
+				d = d.replaceAll("AUFS ", "");
+				d = d.replaceAll("aufs ", "");
+				d = d.replaceAll("==&gt;", "→\n\t\t");
+				res += d + "\n\n";
+			}
+			return res;
 		}
 
 		@Override
