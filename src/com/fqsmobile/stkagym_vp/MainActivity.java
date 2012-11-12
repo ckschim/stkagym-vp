@@ -73,21 +73,23 @@ public class MainActivity extends Activity {
 				res = "Fehler: Unvollständige Daten";
 				return null;
 			}
+			
+			String[] toplevelsplitting = data.split("<FONT FACE=\"Arial\"><H3><CENTER>Ersatzraumplan f&uuml;r (.*)</CENTER></H3></FONT>");
 
 			// Vertretungen
-			String[] v = data.split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
+			String[] v = toplevelsplitting[0].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
 					+ "</FONT></B></CENTER></TD>");
 
 			if (v.length > 1) {
 				res += "Vertretungen:\n\n";
-				v = v[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
-				String[] v_dataset = v[0].split("</TR>");
+				String[] v_dataset = v[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
+				v_dataset = v_dataset[0].split("</TR>");
 				res += formatDataset(v_dataset);
 			}
 
 			// Klausuren
 
-			String[] k = data.split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">K" + identifier
+			String[] k = toplevelsplitting[0].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">K" + identifier
 					+ "[a-z]</FONT></B></CENTER></TD>");
 
 			if (k.length > 1) {
@@ -97,6 +99,17 @@ public class MainActivity extends Activity {
 					String[] set = buf[0].split("</TR>");
 					res += formatDataset(set);
 				}
+			}
+			
+			// Ersatzraumplan
+			
+			String[] e = toplevelsplitting[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
+					+ "</FONT></B></CENTER></TD>");
+			if(e.length > 1) {
+				res += "Ersatzraumplan:\n\n";
+				String[] e_dataset = e[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
+				e_dataset = e_dataset[0].split("</TR>");
+				res += formatDataset(e_dataset);
 			}
 
 			if (res == "") {
