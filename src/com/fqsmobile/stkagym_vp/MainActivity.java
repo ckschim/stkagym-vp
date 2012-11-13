@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.view.*;
 import android.widget.*;
@@ -80,7 +81,7 @@ public class MainActivity extends Activity {
 					+ "</FONT></B></CENTER></TD>");
 
 			if (v.length > 1) {
-				res += "Vertretungen:\n\n";
+				res += "<b>Vertretungen:</b><br /><br />";
 				String[] v_dataset = v[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 				v_dataset = v_dataset[0].split("</TR>");
 				res += formatDataset(v_dataset);
@@ -92,7 +93,7 @@ public class MainActivity extends Activity {
 					+ "[a-z]</FONT></B></CENTER></TD>");
 
 			if (k.length > 1) {
-				res += "Klausuren:\n\n";
+				res += "<b>Klausuren:</b><br /><br />";
 				for(int i = 1; i < k.length; i++) {
 					String[] buf = k[i].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 					String[] set = buf[0].split("</TR>");
@@ -105,7 +106,7 @@ public class MainActivity extends Activity {
 			String[] e = toplevelsplitting[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
 					+ "</FONT></B></CENTER></TD>");
 			if(e.length > 1) {
-				res += "Ersatzraumplan:\n\n";
+				res += "<b>Ersatzraumplan:</b><br /><br />";
 				String[] e_dataset = e[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 				e_dataset = e_dataset[0].split("</TR>");
 				res += formatDataset(e_dataset);
@@ -137,8 +138,8 @@ public class MainActivity extends Activity {
 				d = d.replaceAll("----- ", "");
 				d = d.replaceAll("AUFS ", "");
 				d = d.replaceAll("aufs ", "");
-				d = d.replaceAll("==&gt;", "→\n\t\t");
-				res += d + "\n\n";
+				d = d.replaceAll("==&gt;", "→<br />\t\t");
+				res += d + "<br /><br />";
 			}
 			return res;
 		}
@@ -152,7 +153,7 @@ public class MainActivity extends Activity {
 			super.onPostExecute(result);
 			TextView substTextView = (TextView) findViewById(R.id.substitution_data);
 			TextView dateTextView = (TextView) findViewById(R.id.substDate);
-			substTextView.setText(res);
+			substTextView.setText(Html.fromHtml(res));
 			substTextView.setMovementMethod(new ScrollingMovementMethod());
 			dateTextView.setText(date);
 			ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
