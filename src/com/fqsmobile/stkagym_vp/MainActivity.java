@@ -13,11 +13,13 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.text.Html;
@@ -28,7 +30,6 @@ import android.widget.*;
 public class MainActivity extends Activity {
 	String identifier;
 
-	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -58,6 +59,11 @@ public class MainActivity extends Activity {
 
 		@Override
 		protected Void doInBackground(Void... arg0) {
+			
+			if(!isOnline()) {
+				res = "Keine Internetverbindung";
+				return null;
+			}
 
 			String data = getHttpText("http://www.gymnasium-kamen.de/pages/vp.html");
 			if (data.length() <= 1)
@@ -273,6 +279,16 @@ public class MainActivity extends Activity {
 			}
 		}
 		return sb.toString();
+	}
+	
+	public boolean isOnline() {
+	    ConnectivityManager cm =
+	        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	        return true;
+	    }
+	    return false;
 	}
 
 }
