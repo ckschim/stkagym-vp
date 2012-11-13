@@ -12,7 +12,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -119,7 +118,10 @@ public class MainActivity extends Activity {
 					res = "Bitte erst Einstellungen vornehmen.\nMenü → Einstellungen\n";
 				}
 			} else {
-				res = StringEscapeUtils.unescapeHtml4(res);
+				res = res.replaceAll("&auml;", "ä");
+				res = res.replaceAll("&ouml;", "ö");
+				res = res.replaceAll("&uuml;", "ü");
+				res = res.replaceAll("&szlig;", "ß");
 			}
 
 			return null;
