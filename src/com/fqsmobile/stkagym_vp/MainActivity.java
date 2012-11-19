@@ -56,6 +56,7 @@ public class MainActivity extends Activity {
 			public View getView(int position, View convertView, ViewGroup parent) {
 				View view = super.getView(position, convertView, parent);
 				if (valueList.get(position).get("section") != null) {
+					Log.v("debug", position + " " + valueList.get(position).get("section"));
 					((ViewGroup) view).getChildAt(0).setVisibility(View.VISIBLE);
 				}
 				return view;
@@ -149,7 +150,7 @@ public class MainActivity extends Activity {
 			if (e.length > 1) {
 				String[] e_dataset = e[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 				e_dataset = e_dataset[0].split("</TR>");
-				//addDataset(e_dataset, "ERSATZRAUMPLAN", true);
+				addDataset(e_dataset, "ERSATZRAUMPLAN", true);
 			}
 
 			// if (res == "") {
@@ -181,13 +182,17 @@ public class MainActivity extends Activity {
 				pDataset[i] = pDataset[i].replaceAll("&ouml;", "ö");
 				pDataset[i] = pDataset[i].replaceAll("&uuml;", "ü");
 				pDataset[i] = pDataset[i].replaceAll("&szlig;", "ß");
-				String[] set = pDataset[i].split("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">");
+				String[] set = pDataset[i]
+						.split("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">|<TD><CENTER><FONT COLOR=\"#FF0000\" FACE=\"Arial\" SIZE=\"0\">");
 				set[1] = set[1].substring(0, 3);
 
 				Map<String, String> m = new HashMap<String, String>();
 				m.put("lesson", set[1]);
 				m.put("col1", set[2]);
-				m.put("col2", set[4] + set[5]);
+				if (set.length == 6)
+					m.put("col2", set[4] + set[5]);
+				else
+					m.put("col2", set[4]);
 
 				if (i == 1 && isSection) {
 					m.put("section", setName);
