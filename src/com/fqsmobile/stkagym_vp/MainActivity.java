@@ -26,10 +26,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.DataSetObserver;
-import android.text.Html;
-import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
@@ -44,11 +40,6 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		valueList = new ArrayList<Map<String, String>>();
-		/*
-		 * for (int i = 0; i < 10; i++) { Map<String, String> m = new
-		 * HashMap<String, String>(); m.put("lesson", "3"); m.put("col1",
-		 * "Test"); m.put("col2", "Test"); valueList.add(m); }
-		 */
 
 		adapter = new SimpleAdapter(getApplicationContext(), valueList, R.layout.substitutionitem, new String[] { "section", "lesson",
 				"col1", "col2" }, new int[] { R.id.section, R.id.lesson, R.id.col1, R.id.col2 }) {
@@ -56,8 +47,9 @@ public class MainActivity extends Activity {
 			public View getView(int position, View convertView, ViewGroup parent) {
 				View view = super.getView(position, convertView, parent);
 				if (valueList.get(position).get("section") != null) {
-					Log.v("debug", position + " " + valueList.get(position).get("section"));
 					((ViewGroup) view).getChildAt(0).setVisibility(View.VISIBLE);
+				} else {
+					((ViewGroup) view).getChildAt(0).setVisibility(View.GONE);
 				}
 				return view;
 			}
@@ -88,14 +80,13 @@ public class MainActivity extends Activity {
 		}
 
 		String date = "";
+		String message = "";
 
 		@Override
 		protected Void doInBackground(Void... arg0) {
 
 			if (!isOnline()) {
-				// res = "Keine Internetverbindung";
-
-				// TODO: error handling
+				message = "Keine Internetverbindung";
 				return null;
 			}
 
@@ -110,8 +101,7 @@ public class MainActivity extends Activity {
 			if (dateMatcher.find()) {
 				date = dateMatcher.group(1);
 			} else {
-				// res = "Fehler: Unvollständige Daten";
-				// TODO: error handling
+				message = "Fehler: Unvollständige Daten";
 				return null;
 			}
 
@@ -124,7 +114,6 @@ public class MainActivity extends Activity {
 					+ identifier + "</FONT></B></CENTER></TD>");
 
 			if (v.length > 1) {
-				// res += "<b>Vertretungen:</b><br /><br />";
 				String[] v_dataset = v[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 				v_dataset = v_dataset[0].split("</TR>");
 				addDataset(v_dataset, "VERTRETUNGEN", true);
@@ -153,19 +142,13 @@ public class MainActivity extends Activity {
 				addDataset(e_dataset, "ERSATZRAUMPLAN", true);
 			}
 
-			// if (res == "") {
-			// if (identifier != "") {
-			// res = "Es gibt aktuell keine Änderungen";
-			// } else {
-			// res =
-			// "Bitte erst Einstellungen vornehmen.\nMenü → Einstellungen\n";
-			// }
-			// } else {
-			// res = res.replaceAll("&auml;", "ä");
-			// res = res.replaceAll("&ouml;", "ö");
-			// res = res.replaceAll("&uuml;", "ü");
-			// res = res.replaceAll("&szlig;", "ß");
-			// }
+			if (valueList.size() == 0) {
+				if (identifier != "") {
+					message = "Es gibt aktuell keine Änderungen";
+				} else {
+					message = "Bitte erst Einstellungen vornehmen.\nMenü → Einstellungen\n";
+				}
+			}
 
 			return null;
 		}
@@ -209,10 +192,16 @@ public class MainActivity extends Activity {
 
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
+
 			TextView dateTextView = (TextView) findViewById(R.id.substDate);
 			dateTextView.setText(date);
+
+			TextView messageTextView = (TextView) findViewById(R.id.message);
+			messageTextView.setText(message);
+
 			ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
 			bar.setVisibility(View.INVISIBLE);
+
 			adapter.notifyDataSetChanged();
 		}
 
@@ -222,6 +211,13 @@ public class MainActivity extends Activity {
 		// (Geänderte) Einstellungen anwenden
 		String grade = getGradePrefs();
 		String subgrade = getSubgradePrefs();
+
+		if (!(grade.equals("EF") || grade.equals("Q1") || grade.equals("Q2")) && subgrade.equals("")) {
+			TextView messageTextView = (TextView) findViewById(R.id.message);
+			messageTextView
+					.setText("Du hast eine Stufe ausgewählt, aber keine Klasse. Bitte gehe zurück in die Einstellungen und stelle die Klasse ein.");
+			return;
+		}
 
 		identifier = grade.concat(subgrade);
 		TextView gradeTextView = (TextView) findViewById(R.id.grade);
