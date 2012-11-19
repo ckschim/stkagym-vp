@@ -4,6 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,20 +26,48 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.DataSetObserver;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
 public class MainActivity extends Activity {
 	String identifier;
+	List<Map<String, String>> valueList;
+	SimpleAdapter adapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		valueList = new ArrayList<Map<String, String>>();
+		/*
+		 * for (int i = 0; i < 10; i++) { Map<String, String> m = new
+		 * HashMap<String, String>(); m.put("lesson", "3"); m.put("col1",
+		 * "Test"); m.put("col2", "Test"); valueList.add(m); }
+		 */
+
+		adapter = new SimpleAdapter(getApplicationContext(), valueList, R.layout.substitutionitem, new String[] { "section", "lesson",
+				"col1", "col2" }, new int[] { R.id.section, R.id.lesson, R.id.col1, R.id.col2 }) {
+			@Override
+			public View getView(int position, View convertView, ViewGroup parent) {
+				View view = super.getView(position, convertView, parent);
+				if (valueList.get(position).get("section") != null) {
+					((ViewGroup) view).getChildAt(0).setVisibility(View.VISIBLE);
+				}
+				return view;
+			}
+		};
+
+		ListView lv = (ListView) findViewById(R.id.substData);
+		lv.setAdapter(adapter);
+
 		/* Anwenden der Einstellungen beim Start */
 		applySettings();
+
 		final Button button = (Button) findViewById(R.id.button_refresh); // Refresh-Button
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -54,14 +86,15 @@ public class MainActivity extends Activity {
 
 		}
 
-		String res = "";
 		String date = "";
 
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			
-			if(!isOnline()) {
-				res = "Keine Internetverbindung";
+
+			if (!isOnline()) {
+				// res = "Keine Internetverbindung";
+
+				// TODO: error handling
 				return null;
 			}
 
@@ -76,78 +109,92 @@ public class MainActivity extends Activity {
 			if (dateMatcher.find()) {
 				date = dateMatcher.group(1);
 			} else {
-				res = "Fehler: Unvollständige Daten";
+				// res = "Fehler: Unvollständige Daten";
+				// TODO: error handling
 				return null;
 			}
-			
+
+			valueList.clear();
+
 			String[] toplevelsplitting = data.split("<FONT FACE=\"Arial\"><H3><CENTER>Ersatzraumplan f&uuml;r (.*)</CENTER></H3></FONT>");
 
 			// Vertretungen
-			String[] v = toplevelsplitting[0].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
-					+ "</FONT></B></CENTER></TD>");
+			String[] v = toplevelsplitting[0].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">"
+					+ identifier + "</FONT></B></CENTER></TD>");
 
 			if (v.length > 1) {
-				res += "<b>Vertretungen:</b><br /><br />";
+				// res += "<b>Vertretungen:</b><br /><br />";
 				String[] v_dataset = v[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 				v_dataset = v_dataset[0].split("</TR>");
-				res += formatDataset(v_dataset);
+				addDataset(v_dataset, "VERTRETUNGEN", true);
 			}
 
 			// Klausuren
 
-			String[] k = toplevelsplitting[0].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">K" + identifier
-					+ "[a-z]</FONT></B></CENTER></TD>");
+			String[] k = toplevelsplitting[0].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">K"
+					+ identifier + "[a-z]</FONT></B></CENTER></TD>");
 
 			if (k.length > 1) {
-				res += "<b>Klausuren:</b><br /><br />";
-				for(int i = 1; i < k.length; i++) {
+				for (int i = 1; i < k.length; i++) {
 					String[] buf = k[i].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 					String[] set = buf[0].split("</TR>");
-					res += formatDataset(set);
+					addDataset(set, "KLAUSUREN", i == 1 ? true : false);
 				}
-			}
-			
-			// Ersatzraumplan
-			
-			String[] e = toplevelsplitting[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">" + identifier
-					+ "</FONT></B></CENTER></TD>");
-			if(e.length > 1) {
-				res += "<b>Ersatzraumplan:</b><br /><br />";
-				String[] e_dataset = e[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
-				e_dataset = e_dataset[0].split("</TR>");
-				res += formatDataset(e_dataset);
 			}
 
-			if (res == "") {
-				if (identifier != "") {
-					res = "Es gibt aktuell keine Änderungen";
-				} else {
-					res = "Bitte erst Einstellungen vornehmen.\nMenü → Einstellungen\n";
-				}
-			} else {
-				res = res.replaceAll("&auml;", "ä");
-				res = res.replaceAll("&ouml;", "ö");
-				res = res.replaceAll("&uuml;", "ü");
-				res = res.replaceAll("&szlig;", "ß");
+			// Ersatzraumplan
+
+			String[] e = toplevelsplitting[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">"
+					+ identifier + "</FONT></B></CENTER></TD>");
+			if (e.length > 1) {
+				String[] e_dataset = e[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
+				e_dataset = e_dataset[0].split("</TR>");
+				//addDataset(e_dataset, "ERSATZRAUMPLAN", true);
 			}
+
+			// if (res == "") {
+			// if (identifier != "") {
+			// res = "Es gibt aktuell keine Änderungen";
+			// } else {
+			// res =
+			// "Bitte erst Einstellungen vornehmen.\nMenü → Einstellungen\n";
+			// }
+			// } else {
+			// res = res.replaceAll("&auml;", "ä");
+			// res = res.replaceAll("&ouml;", "ö");
+			// res = res.replaceAll("&uuml;", "ü");
+			// res = res.replaceAll("&szlig;", "ß");
+			// }
 
 			return null;
 		}
 
-		private String formatDataset(String[] pDataset) {
-			String res = "";
+		private void addDataset(String[] pDataset, String setName, boolean isSection) {
 			for (int i = 1; i < pDataset.length - 1; i++) {
-				String d = pDataset[i].replaceAll("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">", "");
-				d = d.replaceAll("</FONT></CENTER></TD>", "");
-				d = d.replaceAll("<TR>", "");
-				d = d.replaceAll("\n", "");
-				d = d.replaceAll("----- ", "");
-				d = d.replaceAll("AUFS ", "");
-				d = d.replaceAll("aufs ", "");
-				d = d.replaceAll("==&gt;", "→<br />\t\t");
-				res += d + "<br /><br />";
+				// http://cdn.memegenerator.net/instances/400x/30464908.jpg
+				pDataset[i] = pDataset[i].replaceAll("</FONT></CENTER></TD>", "");
+				pDataset[i] = pDataset[i].replaceAll("-----", "");
+				pDataset[i] = pDataset[i].replaceAll("AUFS ", "");
+				pDataset[i] = pDataset[i].replaceAll("aufs ", "");
+				pDataset[i] = pDataset[i].replaceAll("\n", "");
+				pDataset[i] = pDataset[i].replaceAll("&auml;", "ä");
+				pDataset[i] = pDataset[i].replaceAll("&ouml;", "ö");
+				pDataset[i] = pDataset[i].replaceAll("&uuml;", "ü");
+				pDataset[i] = pDataset[i].replaceAll("&szlig;", "ß");
+				String[] set = pDataset[i].split("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">");
+				set[1] = set[1].substring(0, 3);
+
+				Map<String, String> m = new HashMap<String, String>();
+				m.put("lesson", set[1]);
+				m.put("col1", set[2]);
+				m.put("col2", set[4] + set[5]);
+
+				if (i == 1 && isSection) {
+					m.put("section", setName);
+				}
+
+				valueList.add(m);
 			}
-			return res;
 		}
 
 		@Override
@@ -157,13 +204,11 @@ public class MainActivity extends Activity {
 
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
-			TextView substTextView = (TextView) findViewById(R.id.substitution_data);
 			TextView dateTextView = (TextView) findViewById(R.id.substDate);
-			substTextView.setText(Html.fromHtml(res));
-			substTextView.setMovementMethod(new ScrollingMovementMethod());
 			dateTextView.setText(date);
 			ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
 			bar.setVisibility(View.INVISIBLE);
+			adapter.notifyDataSetChanged();
 		}
 
 	}
@@ -280,15 +325,14 @@ public class MainActivity extends Activity {
 		}
 		return sb.toString();
 	}
-	
+
 	public boolean isOnline() {
-	    ConnectivityManager cm =
-	        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
-	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-	        return true;
-	    }
-	    return false;
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+			return true;
+		}
+		return false;
 	}
 
 }

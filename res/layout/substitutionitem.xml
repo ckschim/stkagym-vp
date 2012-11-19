@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="left|center"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/section"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:textColor="#444"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="#ddd"
+        android:gravity="left|center"
+        android:paddingBottom="2dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="2dp" >
+
+        <TextView
+            android:id="@+id/lesson"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.1"
+            android:gravity="center"
+            android:text=""
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/col1"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.3"
+            android:gravity="center"
+            android:text=""
+            android:textColor="#000000" />
+
+        <TextView
+            android:id="@+id/arrow"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="-5dp"
+            android:layout_weight="0.1"
+            android:gravity="center"
+            android:text="⇒"
+            android:textColor="#000000"
+            android:textSize="30sp" />
+
+        <TextView
+            android:id="@+id/col2"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="0.5"
+            android:gravity="center"
+            android:text=""
+            android:textColor="#000000" />
+    </LinearLayout>
+
+</LinearLayout>

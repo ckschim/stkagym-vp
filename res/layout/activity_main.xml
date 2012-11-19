@@ -1,7 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp" >
 
     <Button
         android:id="@+id/button_refresh"
@@ -12,28 +14,6 @@
         android:text="@string/refresh_button" />
 
     <TextView
-        android:id="@+id/grade"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/button_refresh"
-        android:layout_marginLeft="14dp"
-        android:text="@string/placeholder_grade"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <TextView
-        android:id="@+id/substitution_data"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/grade"
-        android:layout_below="@+id/grade"
-        android:layout_marginTop="21dp"
-        android:maxLines="25"
-        android:scrollbars="vertical"
-        android:text="@string/placeholder_data"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <TextView
         android:id="@+id/substDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -42,12 +22,39 @@
         android:layout_alignLeft="@+id/grade"
         android:text="@string/placeholder_date"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    <ListView
+        android:id="@+id/substData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/grade"
+        tools:listitem="@layout/substitutionitem" />
 
     <ProgressBar
         android:id="@+id/progressBar1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/substitution_data"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/grade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/substDate"
+        android:text="@string/placeholder_grade"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/debug"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/grade"
+        android:layout_alignBottom="@+id/grade"
+        android:layout_marginLeft="17dp"
+        android:layout_toRightOf="@+id/grade"
+        android:text="d"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>
