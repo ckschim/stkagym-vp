@@ -42,28 +42,26 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		HashMap<String, Object> data = (HashMap<String, Object>)getLastNonConfigurationInstance();
-		if(data == null) {
+		HashMap<String, Object> data = (HashMap<String, Object>) getLastNonConfigurationInstance();
+		if (data == null) {
 			valueList = new ArrayList<Map<String, String>>();
 			applySettings();
-		}
-		else {
-			valueList = (ArrayList<Map<String, String>>)data.get("valueList");
-			date = (String)data.get("date");
-			message = (String)data.get("message");
-			identifier = (String)data.get("identifier");
-			
+		} else {
+			valueList = (ArrayList<Map<String, String>>) data.get("valueList");
+			date = (String) data.get("date");
+			message = (String) data.get("message");
+			identifier = (String) data.get("identifier");
+
 			TextView dateTextView = (TextView) findViewById(R.id.substDate);
 			dateTextView.setText(date);
 
 			TextView messageTextView = (TextView) findViewById(R.id.message);
 			messageTextView.setText(message);
-			
+
 			TextView gradeTextView = (TextView) findViewById(R.id.grade);
 			gradeTextView.setText(identifier);
 		}
-		
-		
+
 		adapter = new SimpleAdapter(getApplicationContext(), valueList, R.layout.substitutionitem, new String[] { "section", "lesson",
 				"col1", "col2" }, new int[] { R.id.section, R.id.lesson, R.id.col1, R.id.col2 }) {
 			@Override
@@ -79,7 +77,7 @@ public class MainActivity extends Activity {
 		};
 
 		ListView lv = (ListView) findViewById(R.id.substData);
-		lv.setAdapter(adapter);			
+		lv.setAdapter(adapter);
 
 		final ImageButton button = (ImageButton) findViewById(R.id.button_refresh); // Refresh-Button
 		button.setOnClickListener(new View.OnClickListener() {
@@ -88,7 +86,7 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
-	
+
 	public Object onRetainNonConfigurationInstance() {
 		HashMap<String, Object> data = new HashMap<String, Object>();
 		data.put("valueList", valueList);
@@ -192,7 +190,7 @@ public class MainActivity extends Activity {
 				pDataset[i] = pDataset[i].replaceAll("&szlig;", "ß");
 				String[] set = pDataset[i]
 						.split("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">|<TD><CENTER><FONT COLOR=\"#FF0000\" FACE=\"Arial\" SIZE=\"0\">");
-				if(set[1].startsWith("0"))
+				if (set[1].startsWith("0"))
 					set[1] = set[1].substring(1, 3);
 				else
 					set[1] = set[1].substring(0, 3);
@@ -235,7 +233,7 @@ public class MainActivity extends Activity {
 			valueList.addAll(localValueList);
 			date = localDate;
 			message = localMessage;
-			
+
 			adapter.notifyDataSetChanged();
 		}
 
