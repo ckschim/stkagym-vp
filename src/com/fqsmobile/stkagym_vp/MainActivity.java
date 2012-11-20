@@ -61,7 +61,7 @@ public class MainActivity extends Activity {
 		/* Anwenden der Einstellungen beim Start */
 		applySettings();
 
-		final Button button = (Button) findViewById(R.id.button_refresh); // Refresh-Button
+		final ImageButton button = (ImageButton) findViewById(R.id.button_refresh); // Refresh-Button
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				new getData().execute();
@@ -208,18 +208,22 @@ public class MainActivity extends Activity {
 		String grade = getGradePrefs();
 		String subgrade = getSubgradePrefs();
 		TextView messageTextView = (TextView) findViewById(R.id.message);
+		ImageButton btn = (ImageButton) findViewById(R.id.button_refresh);
 
 		if (grade.equals("")) {
 			messageTextView.setText("Bitte erst Einstellungen vornehmen.\nMenü → Einstellungen\n");
+			btn.setEnabled(false);
 			return;
 		}
 		if (!(grade.equals("EF") || grade.equals("Q1") || grade.equals("Q2")) && subgrade.equals("")) {
 
 			messageTextView
 					.setText("Du hast eine Stufe ausgewählt, aber keine Klasse. Bitte gehe zurück in die Einstellungen und stelle die Klasse ein.");
+			btn.setEnabled(false);
 			return;
 		}
-
+		
+		btn.setEnabled(true);
 		identifier = grade.concat(subgrade);
 		TextView gradeTextView = (TextView) findViewById(R.id.grade);
 		gradeTextView.setText(identifier);
