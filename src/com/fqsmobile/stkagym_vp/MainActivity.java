@@ -31,16 +31,39 @@ import android.widget.*;
 
 public class MainActivity extends Activity {
 	String identifier;
+	String date;
+	String message;
 	List<Map<String, String>> valueList;
 	SimpleAdapter adapter;
 
+	@SuppressWarnings({ "deprecation", "unchecked" })
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		valueList = new ArrayList<Map<String, String>>();
+		HashMap<String, Object> data = (HashMap<String, Object>)getLastNonConfigurationInstance();
+		if(data == null) {
+			valueList = new ArrayList<Map<String, String>>();
+			applySettings();
+		}
+		else {
+			valueList = (ArrayList<Map<String, String>>)data.get("valueList");
+			date = (String)data.get("date");
+			message = (String)data.get("message");
+			identifier = (String)data.get("identifier");
+			
+			TextView dateTextView = (TextView) findViewById(R.id.substDate);
+			dateTextView.setText(date);
 
+			TextView messageTextView = (TextView) findViewById(R.id.message);
+			messageTextView.setText(message);
+			
+			TextView gradeTextView = (TextView) findViewById(R.id.grade);
+			gradeTextView.setText(identifier);
+		}
+		
+		
 		adapter = new SimpleAdapter(getApplicationContext(), valueList, R.layout.substitutionitem, new String[] { "section", "lesson",
 				"col1", "col2" }, new int[] { R.id.section, R.id.lesson, R.id.col1, R.id.col2 }) {
 			@Override
@@ -56,10 +79,7 @@ public class MainActivity extends Activity {
 		};
 
 		ListView lv = (ListView) findViewById(R.id.substData);
-		lv.setAdapter(adapter);
-
-		/* Anwenden der Einstellungen beim Start */
-		applySettings();
+		lv.setAdapter(adapter);			
 
 		final ImageButton button = (ImageButton) findViewById(R.id.button_refresh); // Refresh-Button
 		button.setOnClickListener(new View.OnClickListener() {
@@ -67,6 +87,15 @@ public class MainActivity extends Activity {
 				new getData().execute();
 			}
 		});
+	}
+	
+	public Object onRetainNonConfigurationInstance() {
+		HashMap<String, Object> data = new HashMap<String, Object>();
+		data.put("valueList", valueList);
+		data.put("identifier", identifier);
+		data.put("message", message);
+		data.put("date", date);
+		return data;
 	}
 
 	private class getData extends AsyncTask<Void, Void, Void> {
@@ -79,8 +108,8 @@ public class MainActivity extends Activity {
 
 		}
 
-		String date = "";
-		String message = "";
+		String localDate = "";
+		String localMessage = "";
 		List<Map<String, String>> localValueList = new ArrayList<Map<String, String>>();;
 
 		@Override
@@ -100,7 +129,7 @@ public class MainActivity extends Activity {
 			Matcher dateMatcher = datePattern.matcher(data);
 
 			if (dateMatcher.find()) {
-				date = dateMatcher.group(1);
+				localDate = dateMatcher.group(1);
 			} else {
 				message = "Fehler: Unvollständige Daten";
 				return null;
@@ -194,7 +223,7 @@ public class MainActivity extends Activity {
 			super.onPostExecute(result);
 
 			TextView dateTextView = (TextView) findViewById(R.id.substDate);
-			dateTextView.setText(date);
+			dateTextView.setText(localDate);
 
 			TextView messageTextView = (TextView) findViewById(R.id.message);
 			messageTextView.setText(message);
@@ -204,6 +233,9 @@ public class MainActivity extends Activity {
 
 			valueList.clear();
 			valueList.addAll(localValueList);
+			date = localDate;
+			message = localMessage;
+			
 			adapter.notifyDataSetChanged();
 		}
 
