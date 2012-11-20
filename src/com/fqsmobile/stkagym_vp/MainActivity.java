@@ -81,6 +81,7 @@ public class MainActivity extends Activity {
 
 		String date = "";
 		String message = "";
+		List<Map<String, String>> localValueList = new ArrayList<Map<String, String>>();;
 
 		@Override
 		protected Void doInBackground(Void... arg0) {
@@ -105,8 +106,6 @@ public class MainActivity extends Activity {
 				return null;
 			}
 
-			valueList.clear();
-
 			String[] toplevelsplitting = data.split("<FONT FACE=\"Arial\"><H3><CENTER>Ersatzraumplan f&uuml;r (.*)</CENTER></H3></FONT>");
 
 			// Vertretungen
@@ -116,7 +115,7 @@ public class MainActivity extends Activity {
 			if (v.length > 1) {
 				String[] v_dataset = v[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 				v_dataset = v_dataset[0].split("</TR>");
-				addDataset(v_dataset, "VERTRETUNGEN", true);
+				localValueList = addDataset(v_dataset, "VERTRETUNGEN", true, localValueList);
 			}
 
 			// Klausuren
@@ -128,7 +127,7 @@ public class MainActivity extends Activity {
 				for (int i = 1; i < k.length; i++) {
 					String[] buf = k[i].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 					String[] set = buf[0].split("</TR>");
-					addDataset(set, "KLAUSUREN", i == 1 ? true : false);
+					localValueList = addDataset(set, "KLAUSUREN", i == 1 ? true : false, localValueList);
 				}
 			}
 
@@ -139,17 +138,18 @@ public class MainActivity extends Activity {
 			if (e.length > 1) {
 				String[] e_dataset = e[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 				e_dataset = e_dataset[0].split("</TR>");
-				addDataset(e_dataset, "ERSATZRAUMPLAN", true);
+				localValueList = addDataset(e_dataset, "ERSATZRAUMPLAN", true, localValueList);
 			}
 
-			if (valueList.size() == 0) {
+			if (localValueList.size() == 0) {
 				message = "Es gibt aktuell keine Änderungen";
 			}
 
 			return null;
 		}
 
-		private void addDataset(String[] pDataset, String setName, boolean isSection) {
+		private List<Map<String, String>> addDataset(String[] pDataset, String setName, boolean isSection,
+				List<Map<String, String>> localValueList) {
 			for (int i = 1; i < pDataset.length - 1; i++) {
 				// http://cdn.memegenerator.net/instances/400x/30464908.jpg
 				pDataset[i] = pDataset[i].replaceAll("</FONT></CENTER></TD>", "");
@@ -177,8 +177,9 @@ public class MainActivity extends Activity {
 					m.put("section", setName);
 				}
 
-				valueList.add(m);
+				localValueList.add(m);
 			}
+			return localValueList;
 		}
 
 		@Override
@@ -198,6 +199,8 @@ public class MainActivity extends Activity {
 			ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
 			bar.setVisibility(View.INVISIBLE);
 
+			valueList.clear();
+			valueList.addAll(localValueList);
 			adapter.notifyDataSetChanged();
 		}
 
@@ -215,6 +218,7 @@ public class MainActivity extends Activity {
 			btn.setEnabled(false);
 			return;
 		}
+
 		if (!(grade.equals("EF") || grade.equals("Q1") || grade.equals("Q2")) && subgrade.equals("")) {
 
 			messageTextView
@@ -222,7 +226,7 @@ public class MainActivity extends Activity {
 			btn.setEnabled(false);
 			return;
 		}
-		
+
 		btn.setEnabled(true);
 		identifier = grade.concat(subgrade);
 		TextView gradeTextView = (TextView) findViewById(R.id.grade);
@@ -283,7 +287,6 @@ public class MainActivity extends Activity {
 		// Execute the request
 		HttpResponse response;
 		try {
-			// int i = (Integer)null;int j = i+1;
 			response = httpclient.execute(httpget);
 
 			// Get hold of the response entity
