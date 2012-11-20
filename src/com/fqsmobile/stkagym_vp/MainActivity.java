@@ -163,7 +163,10 @@ public class MainActivity extends Activity {
 				pDataset[i] = pDataset[i].replaceAll("&szlig;", "ß");
 				String[] set = pDataset[i]
 						.split("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">|<TD><CENTER><FONT COLOR=\"#FF0000\" FACE=\"Arial\" SIZE=\"0\">");
-				set[1] = set[1].substring(0, 3);
+				if(set[1].startsWith("0"))
+					set[1] = set[1].substring(1, 3);
+				else
+					set[1] = set[1].substring(0, 3);
 
 				Map<String, String> m = new HashMap<String, String>();
 				m.put("lesson", set[1]);
