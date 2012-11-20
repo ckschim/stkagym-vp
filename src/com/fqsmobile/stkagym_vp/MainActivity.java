@@ -143,11 +143,7 @@ public class MainActivity extends Activity {
 			}
 
 			if (valueList.size() == 0) {
-				if (identifier != "") {
-					message = "Es gibt aktuell keine Änderungen";
-				} else {
-					message = "Bitte erst Einstellungen vornehmen.\nMenü → Einstellungen\n";
-				}
+				message = "Es gibt aktuell keine Änderungen";
 			}
 
 			return null;
@@ -211,9 +207,14 @@ public class MainActivity extends Activity {
 		// (Geänderte) Einstellungen anwenden
 		String grade = getGradePrefs();
 		String subgrade = getSubgradePrefs();
+		TextView messageTextView = (TextView) findViewById(R.id.message);
 
+		if (grade.equals("")) {
+			messageTextView.setText("Bitte erst Einstellungen vornehmen.\nMenü → Einstellungen\n");
+			return;
+		}
 		if (!(grade.equals("EF") || grade.equals("Q1") || grade.equals("Q2")) && subgrade.equals("")) {
-			TextView messageTextView = (TextView) findViewById(R.id.message);
+
 			messageTextView
 					.setText("Du hast eine Stufe ausgewählt, aber keine Klasse. Bitte gehe zurück in die Einstellungen und stelle die Klasse ein.");
 			return;
