@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +23,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -30,12 +32,11 @@ import android.view.*;
 import android.widget.*;
 
 public class MainActivity extends Activity {
-	String identifier;
-	String date;
-	String message;
+	Map<Integer, String> currentStrings;
 	List<Map<String, String>> valueList;
 	SimpleAdapter adapter;
 
+	@SuppressLint("UseSparseArrays")
 	@SuppressWarnings({ "deprecation", "unchecked" })
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -45,21 +46,16 @@ public class MainActivity extends Activity {
 		HashMap<String, Object> data = (HashMap<String, Object>) getLastNonConfigurationInstance();
 		if (data == null) {
 			valueList = new ArrayList<Map<String, String>>();
+			currentStrings = new HashMap<Integer, String>();
 			applySettings();
 		} else {
 			valueList = (ArrayList<Map<String, String>>) data.get("valueList");
-			date = (String) data.get("date");
-			message = (String) data.get("message");
-			identifier = (String) data.get("identifier");
+			currentStrings = (HashMap<Integer, String>) data.get("currentStrings");
+			Set<Integer> stringKeys = currentStrings.keySet();
 
-			TextView dateTextView = (TextView) findViewById(R.id.substDate);
-			dateTextView.setText(date);
-
-			TextView messageTextView = (TextView) findViewById(R.id.message);
-			messageTextView.setText(message);
-
-			TextView gradeTextView = (TextView) findViewById(R.id.grade);
-			gradeTextView.setText(identifier);
+			for (Integer item : stringKeys) {
+				updateTextView(item);
+			}
 		}
 
 		adapter = new SimpleAdapter(getApplicationContext(), valueList, R.layout.substitutionitem, new String[] { "section", "lesson",
@@ -90,9 +86,7 @@ public class MainActivity extends Activity {
 	public Object onRetainNonConfigurationInstance() {
 		HashMap<String, Object> data = new HashMap<String, Object>();
 		data.put("valueList", valueList);
-		data.put("identifier", identifier);
-		data.put("message", message);
-		data.put("date", date);
+		data.put("currentStrings", currentStrings);
 		return data;
 	}
 
@@ -103,7 +97,6 @@ public class MainActivity extends Activity {
 			super.onPreExecute();
 			ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
 			bar.setVisibility(View.VISIBLE);
-
 		}
 
 		String localDate = "";
@@ -114,7 +107,7 @@ public class MainActivity extends Activity {
 		protected Void doInBackground(Void... arg0) {
 
 			if (!isOnline()) {
-				message = "Keine Internetverbindung";
+				localMessage = "Keine Internetverbindung";
 				return null;
 			}
 
@@ -129,7 +122,7 @@ public class MainActivity extends Activity {
 			if (dateMatcher.find()) {
 				localDate = dateMatcher.group(1);
 			} else {
-				message = "Fehler: Unvollständige Daten";
+				localMessage = "Fehler: Unvollständige Daten";
 				return null;
 			}
 
@@ -137,7 +130,7 @@ public class MainActivity extends Activity {
 
 			// Vertretungen
 			String[] v = toplevelsplitting[0].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">"
-					+ identifier + "</FONT></B></CENTER></TD>");
+					+ currentStrings.get(R.id.grade) + "</FONT></B></CENTER></TD>");
 
 			if (v.length > 1) {
 				String[] v_dataset = v[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
@@ -148,7 +141,7 @@ public class MainActivity extends Activity {
 			// Klausuren
 
 			String[] k = toplevelsplitting[0].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">K"
-					+ identifier + "[a-z]</FONT></B></CENTER></TD>");
+					+ currentStrings.get(R.id.grade) + "[a-z]</FONT></B></CENTER></TD>");
 
 			if (k.length > 1) {
 				for (int i = 1; i < k.length; i++) {
@@ -161,7 +154,7 @@ public class MainActivity extends Activity {
 			// Ersatzraumplan
 
 			String[] e = toplevelsplitting[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">"
-					+ identifier + "</FONT></B></CENTER></TD>");
+					+ currentStrings.get(R.id.grade) + "</FONT></B></CENTER></TD>");
 			if (e.length > 1) {
 				String[] e_dataset = e[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 				e_dataset = e_dataset[0].split("</TR>");
@@ -169,7 +162,7 @@ public class MainActivity extends Activity {
 			}
 
 			if (localValueList.size() == 0) {
-				message = "Es gibt aktuell keine Änderungen";
+				localMessage = "Es gibt aktuell keine Änderungen";
 			}
 
 			return null;
@@ -220,20 +213,14 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 
-			TextView dateTextView = (TextView) findViewById(R.id.substDate);
-			dateTextView.setText(localDate);
-
-			TextView messageTextView = (TextView) findViewById(R.id.message);
-			messageTextView.setText(message);
+			updateTextView(R.id.substDate, localDate);
+			updateTextView(R.id.message, localMessage);
 
 			ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
 			bar.setVisibility(View.INVISIBLE);
 
 			valueList.clear();
 			valueList.addAll(localValueList);
-			date = localDate;
-			message = localMessage;
-
 			adapter.notifyDataSetChanged();
 		}
 
@@ -243,28 +230,38 @@ public class MainActivity extends Activity {
 		// (Geänderte) Einstellungen anwenden
 		String grade = getGradePrefs();
 		String subgrade = getSubgradePrefs();
-		TextView messageTextView = (TextView) findViewById(R.id.message);
 		ImageButton btn = (ImageButton) findViewById(R.id.button_refresh);
 
 		if (grade.equals("")) {
-			messageTextView.setText("Bitte erst Einstellungen vornehmen.\nMenü → Einstellungen\n");
+			updateTextView(R.id.message, "Bitte erst Einstellungen vornehmen.\nMenü → Einstellungen\n");
 			btn.setEnabled(false);
 			return;
 		}
 
 		if (!(grade.equals("EF") || grade.equals("Q1") || grade.equals("Q2")) && subgrade.equals("")) {
 
-			messageTextView
-					.setText("Du hast eine Stufe ausgewählt, aber keine Klasse. Bitte gehe zurück in die Einstellungen und stelle die Klasse ein.");
+			updateTextView(R.id.message,
+					"Du hast eine Stufe ausgewählt, aber keine Klasse. Bitte gehe zurück in die Einstellungen und stelle die Klasse ein.");
 			btn.setEnabled(false);
 			return;
 		}
 
 		btn.setEnabled(true);
-		identifier = grade.concat(subgrade);
-		TextView gradeTextView = (TextView) findViewById(R.id.grade);
-		gradeTextView.setText(identifier);
+		String identifier = grade.concat(subgrade);
+		updateTextView(R.id.grade, identifier);
+
 		new getData().execute();
+	}
+
+	private void updateTextView(int id, String text) {
+		TextView view = (TextView) findViewById(id);
+		view.setText(text);
+		currentStrings.put(id, text);
+	}
+
+	private void updateTextView(int id) {
+		TextView view = (TextView) findViewById(id);
+		view.setText(currentStrings.get(id));
 	}
 
 	/*
