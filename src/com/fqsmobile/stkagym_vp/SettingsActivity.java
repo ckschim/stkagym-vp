@@ -35,11 +35,11 @@ public class SettingsActivity extends PreferenceActivity {
 	private void checkGrade(String grade) {
 		@SuppressWarnings("deprecation")
 		final ListPreference subgradesList = (ListPreference) findPreference("subgrades_list");
-		if (grade.equals("EF") || grade.equals("Q1") || grade.equals("Q2")){
+		if (grade.equals("EF") || grade.equals("Q1") || grade.equals("Q2")) {
 			subgradesList.setEnabled(false);
-			subgradesList.setValue("");} // Leeren
-		else
-		{
+			subgradesList.setValue(""); // Leeren
+		}
+		else {
 			subgradesList.setEnabled(true);
 		}
 	}
