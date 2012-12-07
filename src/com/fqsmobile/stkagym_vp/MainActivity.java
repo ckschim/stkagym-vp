@@ -35,6 +35,8 @@ public class MainActivity extends Activity {
 	Map<Integer, String> currentStrings;
 	List<Map<String, String>> valueList;
 	SimpleAdapter adapter;
+	SharedPreferences prefs;
+	SharedPreferences.Editor prefsEditor;
 
 	@SuppressLint("UseSparseArrays")
 	@SuppressWarnings({ "deprecation", "unchecked" })
@@ -42,6 +44,9 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+		prefsEditor = prefs.edit();
 
 		HashMap<String, Object> data = (HashMap<String, Object>) getLastNonConfigurationInstance();
 		if (data == null) {
@@ -78,11 +83,14 @@ public class MainActivity extends Activity {
 		final ImageButton button = (ImageButton) findViewById(R.id.button_refresh); // Refresh-Button
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				new getData().execute();
+				new getData().execute(true);
 			}
 		});
 	}
 
+	/*
+	 * Daten speichern wenn App verlassen wird
+	 */
 	public Object onRetainNonConfigurationInstance() {
 		HashMap<String, Object> data = new HashMap<String, Object>();
 		data.put("valueList", valueList);
@@ -90,8 +98,7 @@ public class MainActivity extends Activity {
 		return data;
 	}
 
-	private class getData extends AsyncTask<Void, Void, Void> {
-
+	private class getData extends AsyncTask<Boolean, Void, Boolean> {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
@@ -103,17 +110,27 @@ public class MainActivity extends Activity {
 		String localMessage = "";
 		List<Map<String, String>> localValueList = new ArrayList<Map<String, String>>();;
 
+		/*
+		 * Gibt false zurück, wenn nicht neu gerendert werden muss.
+		 */
 		@Override
-		protected Void doInBackground(Void... arg0) {
+		protected Boolean doInBackground(Boolean... isAlreadyRendered) {
 
 			if (!isOnline()) {
 				localMessage = "Keine Internetverbindung";
-				return null;
+				return true;
 			}
 
-			String data = getHttpText("http://www.gymnasium-kamen.de/pages/vp.html");
-			if (data.length() <= 1)
-				return null;
+			String data = downloadData(true);
+
+			if (data.equals("304") && isAlreadyRendered[0])
+				return false;
+			else if (data.equals("304"))
+				data = prefs.getString("cached_page", "");
+
+			// If all the caching caching goes wrong
+			if (data.length() == 0)
+				data = downloadData(false);
 
 			String pattern = "\\<FONT FACE\\=\"Arial\"\\>\\<H3\\>\\<CENTER\\>Vertretungsplan f&uuml;r (.*)\\<\\/CENTER\\>";
 			Pattern datePattern = Pattern.compile(pattern);
@@ -123,7 +140,7 @@ public class MainActivity extends Activity {
 				localDate = dateMatcher.group(1);
 			} else {
 				localMessage = "Fehler: Unvollständige Daten";
-				return null;
+				return true;
 			}
 
 			String[] toplevelsplitting = data.split("<FONT FACE=\"Arial\"><H3><CENTER>Ersatzraumplan f&uuml;r (.*)</CENTER></H3></FONT>");
@@ -165,7 +182,7 @@ public class MainActivity extends Activity {
 				localMessage = "Es gibt aktuell keine Änderungen";
 			}
 
-			return null;
+			return true;
 		}
 
 		private List<Map<String, String>> addDataset(String[] pDataset, String setName, boolean isSection,
@@ -210,14 +227,17 @@ public class MainActivity extends Activity {
 			super.onProgressUpdate(values);
 		}
 
-		protected void onPostExecute(Void result) {
+		protected void onPostExecute(Boolean result) {
 			super.onPostExecute(result);
-
-			updateTextView(R.id.substDate, localDate);
-			updateTextView(R.id.message, localMessage);
 
 			ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
 			bar.setVisibility(View.INVISIBLE);
+
+			if (!result)
+				return;
+
+			updateTextView(R.id.substDate, localDate);
+			updateTextView(R.id.message, localMessage);
 
 			valueList.clear();
 			valueList.addAll(localValueList);
@@ -226,8 +246,10 @@ public class MainActivity extends Activity {
 
 	}
 
+	/*
+	 * (Geänderte) Einstellungen anwenden
+	 */
 	public void applySettings() {
-		// (Geänderte) Einstellungen anwenden
 		String grade = getGradePrefs();
 		String subgrade = getSubgradePrefs();
 		ImageButton btn = (ImageButton) findViewById(R.id.button_refresh);
@@ -250,37 +272,51 @@ public class MainActivity extends Activity {
 		String identifier = grade.concat(subgrade);
 		updateTextView(R.id.grade, identifier);
 
-		new getData().execute();
+		new getData().execute(false);
 	}
 
+	/*
+	 * TextView updaten und String speichern
+	 */
 	private void updateTextView(int id, String text) {
 		TextView view = (TextView) findViewById(id);
 		view.setText(text);
 		currentStrings.put(id, text);
 	}
 
+	/*
+	 * TextView aus dem Speicher updaten
+	 */
 	private void updateTextView(int id) {
 		TextView view = (TextView) findViewById(id);
 		view.setText(currentStrings.get(id));
 	}
 
 	/*
-	 * Hier holt der sich einfach nur den gewählten String der Stufenauswahl.
-	 * Selbsterkärend, denke ich.
+	 * Wrapper für sharedPreferences. Gibt jeweils einen gespeicherten String
+	 * zurück (eigentlich überflüssig)
 	 */
 
 	public String getGradePrefs() {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 		return prefs.getString("grades_list", "");
 
 	}
 
 	public String getSubgradePrefs() {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 		return prefs.getString("subgrades_list", "");
 	}
 
-	/* Erstellung des Menu-Button Menüs */
+	public String getEtag() {
+		return prefs.getString("etag", "");
+	}
+
+	public String getCachedPage() {
+		return prefs.getString("cached_page", "");
+	}
+
+	/*
+	 * Erstellung des Menu-Button Menüs
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
@@ -307,28 +343,38 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	/* Von stackoverflow */
-	public static String getHttpText(String url) {
+	/*
+	 * Lädt Daten herunter. Wenn der Parameter wahr ist, wird im Falle eine
+	 * Cache-Hits "304" zurückgegeben.
+	 */
+	public String downloadData(boolean allowCache) {
 		String result = "";
 		HttpClient httpclient = new DefaultHttpClient();
 
-		// Prepare a request object
-		HttpGet httpget = new HttpGet(url);
-		// Execute the request
+		HttpGet httpget = new HttpGet("http://www.gymnasium-kamen.de/pages/vp.html");
+
+		if (allowCache)
+			httpget.addHeader("If-None-Match", getEtag());
+
 		HttpResponse response;
 		try {
 			response = httpclient.execute(httpget);
 
-			// Get hold of the response entity
+			// Check if cached data is up-to-date
+			if (response.getStatusLine().getStatusCode() == 304) {
+				return "304";
+			}
+
 			HttpEntity entity = response.getEntity();
-			// If the response does not enclose an entity, there is no need
-			// to worry about connection release
+
 			if (entity != null) {
-				// A Simple JSON Response Read
 				InputStream instream = entity.getContent();
 				result = convertStreamToString(instream);
-				// now you have the string representation of the HTML request
 				instream.close();
+
+				prefsEditor.putString("etag", response.getHeaders("Etag")[0].getValue());
+				prefsEditor.putString("cached_page", result);
+				prefsEditor.commit();
 			}
 
 		} catch (Exception e) {
@@ -338,6 +384,9 @@ public class MainActivity extends Activity {
 		return result;
 	}
 
+	/*
+	 * Konvertiert einen Stream zu einem String
+	 */
 	private static String convertStreamToString(InputStream is) {
 		/*
 		 * To convert the InputStream to String we use the
@@ -365,6 +414,9 @@ public class MainActivity extends Activity {
 		return sb.toString();
 	}
 
+	/*
+	 * Überprüft ob das Gerät Internetzugriff hat
+	 */
 	public boolean isOnline() {
 		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo netInfo = cm.getActiveNetworkInfo();

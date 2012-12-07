@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:contentDescription="Aktualisieren"
+        android:contentDescription="@string/refresh_button"
         android:src="@drawable/ic_menu_refresh" />
 
     <TextView
@@ -36,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
+        android:layout_toLeftOf="@id/button_refresh"
         android:visibility="invisible" />
 
     <TextView

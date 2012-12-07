@@ -11,12 +11,12 @@
     <string name="settings_grade_summary">Auswahl der Stufe</string>
     <string name="settings_subgrade">Klasse</string>
     <string name="settings_subgrade_summary">Auswahl der Klasse</string>
-    <string name="refresh_button">Aktual.</string>
+    <string name="refresh_button">Aktualisieren</string>
     <string name="subgrade_string"></string>
     <string name="placeholder_date"></string>
     <string name="settings_version">Version</string>
     <string name="settings_version_number">0.3</string>
     <string name="settings_category_gradeChoice">Filter</string>
     <string name="settings_category_info">Info</string>
-    
+
 </resources>
