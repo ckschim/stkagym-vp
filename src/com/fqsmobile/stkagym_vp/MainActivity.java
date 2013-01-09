@@ -17,6 +17,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreProtocolPNames;
 
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -132,7 +133,7 @@ public class MainActivity extends Activity {
 			if (data.length() == 0)
 				data = downloadData(false);
 
-			String pattern = "\\<FONT FACE\\=\"Arial\"\\>\\<H3\\>\\<CENTER\\>Vertretungsplan f&uuml;r (.*)\\<\\/CENTER\\>";
+			String pattern = "\\<FONT FACE\\=\"Arial\"\\>\\<H3\\>\\<CENTER\\>Vertretungsplan f&uuml;r (.*)\\<\\/CENTER\\><\\/H3\\><\\/FONT\\>";
 			Pattern datePattern = Pattern.compile(pattern);
 			Matcher dateMatcher = datePattern.matcher(data);
 
@@ -236,7 +237,7 @@ public class MainActivity extends Activity {
 			if (!result)
 				return;
 
-			updateTextView(R.id.substDate, localDate);
+			updateTextView(R.id.date, localDate);
 			updateTextView(R.id.message, localMessage);
 
 			valueList.clear();
@@ -350,7 +351,7 @@ public class MainActivity extends Activity {
 	public String downloadData(boolean allowCache) {
 		String result = "";
 		HttpClient httpclient = new DefaultHttpClient();
-
+		httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "Vertretungsplan-App/"+this.getString(R.string.settings_version_number));
 		HttpGet httpget = new HttpGet("http://www.gymnasium-kamen.de/pages/vp.html");
 
 		if (allowCache)

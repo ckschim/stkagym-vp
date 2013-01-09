@@ -1,7 +1,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:layout_marginLeft="3dp" >
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="23dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/button_refresh"
+        android:text="@string/placeholder_date"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ImageButton
         android:id="@+id/button_refresh"
@@ -12,22 +23,11 @@
         android:contentDescription="@string/refresh_button"
         android:src="@drawable/ic_menu_refresh" />
 
-    <TextView
-        android:id="@+id/substDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/button_refresh"
-        android:layout_alignLeft="@+id/grade"
-        android:layout_alignTop="@+id/button_refresh"
-        android:text="@string/placeholder_date"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
     <ListView
         android:id="@+id/substData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/grade"
-        android:layout_marginLeft="3dp"
         android:layout_marginRight="3dp"
         tools:listitem="@layout/substitutionitem" />
 
@@ -44,17 +44,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/substDate"
-        android:layout_marginLeft="3dp"
+        android:layout_below="@+id/date"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
         android:id="@+id/message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/grade"
-        android:layout_marginLeft="3dp"
+        android:layout_alignParentTop="true"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:gravity="center"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>
