@@ -39,6 +39,18 @@
         android:layout_toLeftOf="@id/button_refresh"
         android:visibility="invisible" />
 
+    <ImageView
+        android:id="@+id/cache_warning"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginRight="6dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/button_refresh"
+        android:contentDescription="@string/refresh_button"
+        android:src="@drawable/ic_dialog_alert_holo_light"
+        android:visibility="invisible" />
+
     <TextView
         android:id="@+id/grade"
         android:layout_width="wrap_content"
@@ -53,9 +65,9 @@
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
+        android:gravity="center"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:gravity="center"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>

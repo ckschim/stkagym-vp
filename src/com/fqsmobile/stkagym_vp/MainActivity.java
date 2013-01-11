@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -99,7 +100,6 @@ public class MainActivity extends Activity {
 					view.getChildAt(0).setVisibility(View.GONE);
 
 				if (isPast((int) (Float.parseFloat(valueList.get(position).get("lesson") + "0")))) {
-					Log.v("stkagym-vp", "grau!");
 					((ViewGroup) view.getChildAt(1)).getChildAt(0).setAlpha(0.3f);
 				} else {
 					((ViewGroup) view.getChildAt(1)).getChildAt(0).setAlpha(1f);
@@ -116,6 +116,14 @@ public class MainActivity extends Activity {
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				new getData().execute(true);
+			}
+		});
+
+		final ImageView warn = (ImageView) findViewById(R.id.cache_warning);
+		warn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				new AlertDialog.Builder(MainActivity.this).setMessage(
+						"Es besteht keine aktive Internetverbindung. Die angezeigten Daten sind möglicherweise nicht aktuell.").show();
 			}
 		});
 	}
@@ -143,28 +151,39 @@ public class MainActivity extends Activity {
 		String localMessage = "";
 		List<Map<String, String>> localValueList = new ArrayList<Map<String, String>>();
 		Date localDate;
+		boolean isOfflineCached;
 
 		/*
 		 * Gibt false zurück, wenn nicht neu gerendert werden muss.
 		 */
 		@Override
 		protected Boolean doInBackground(Boolean... isAlreadyRendered) {
+			String data;
 
 			if (!isOnline()) {
-				localMessage = "Keine Internetverbindung";
-				return true;
+				String cacheData = prefs.getString("cached_page", "");
+				if (prefs.getString("cached_page", "").length() > 0) {
+					data = cacheData;
+					isOfflineCached = true;
+				} else {
+					localMessage = "Keine Internetverbindung";
+					isOfflineCached = false;
+					return true;
+				}
+			} else {
+				data = downloadData(true);
+
+				if (data.equals("304") && isAlreadyRendered[0]) {
+					isOfflineCached = false;
+					return false;
+				} else if (data.equals("304"))
+					data = prefs.getString("cached_page", "");
+
+				// If all the caching caching goes wrong
+				if (data.length() == 0)
+					data = downloadData(false);
+				isOfflineCached = false;
 			}
-
-			String data = downloadData(true);
-
-			if (data.equals("304") && isAlreadyRendered[0])
-				return false;
-			else if (data.equals("304"))
-				data = prefs.getString("cached_page", "");
-
-			// If all the caching caching goes wrong
-			if (data.length() == 0)
-				data = downloadData(false);
 
 			String pattern = "\\<FONT FACE\\=\"Arial\"\\>\\<H3\\>\\<CENTER\\>Vertretungsplan f&uuml;r (.*)\\<\\/CENTER\\><\\/H3\\><\\/FONT\\>";
 			Pattern datePattern = Pattern.compile(pattern);
@@ -277,6 +296,12 @@ public class MainActivity extends Activity {
 			ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
 			bar.setVisibility(View.INVISIBLE);
 
+			ImageView warn = (ImageView) findViewById(R.id.cache_warning);
+			if(isOfflineCached)
+				warn.setVisibility(View.VISIBLE);
+			else
+				warn.setVisibility(View.INVISIBLE);
+			
 			if (!result)
 				return;
 
@@ -373,7 +398,6 @@ public class MainActivity extends Activity {
 		}
 
 		/* DEBUG END */
-		Log.v("stkagym-vp", now.getTime() + " " + date.getTime() + " " + lessonMins[l] * 60 * 1000);
 		long diff = now.getTime() - date.getTime() - lessonMins[l - 1] * 60 * 1000;
 		return diff >= 0;
 	}
