@@ -4,9 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -29,15 +33,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
 public class MainActivity extends Activity {
 	Map<Integer, String> currentStrings;
 	List<Map<String, String>> valueList;
+	Date date;
 	SimpleAdapter adapter;
 	SharedPreferences prefs;
 	SharedPreferences.Editor prefsEditor;
+	long lessonMins[];
 
 	@SuppressLint("UseSparseArrays")
 	@SuppressWarnings({ "deprecation", "unchecked" })
@@ -45,6 +52,20 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		/* @formatter:off */
+		lessonMins = new long[] { 
+				 8 * 60 + 25, 
+				 9 * 60 + 15, 
+				10 * 60 + 15, 
+				11 * 60 + 05, 
+				12 * 60 + 10, 
+				13 * 60 +  0, 
+				13 * 60 + 50, 
+				14 * 60 + 45,
+				15 * 60 + 35, 
+				16 * 60 + 20 };
+		/* @formatter:on */
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 		prefsEditor = prefs.edit();
@@ -62,18 +83,28 @@ public class MainActivity extends Activity {
 			for (Integer item : stringKeys) {
 				updateTextView(item);
 			}
+
+			date = (Date) data.get("date");
 		}
 
 		adapter = new SimpleAdapter(getApplicationContext(), valueList, R.layout.substitutionitem, new String[] { "section", "lesson",
 				"col1", "col2" }, new int[] { R.id.section, R.id.lesson, R.id.col1, R.id.col2 }) {
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
-				View view = super.getView(position, convertView, parent);
+
+				ViewGroup view = (ViewGroup) super.getView(position, convertView, parent);
 				if (valueList.get(position).get("section") != null) {
-					((ViewGroup) view).getChildAt(0).setVisibility(View.VISIBLE);
+					view.getChildAt(0).setVisibility(View.VISIBLE);
+				} else
+					view.getChildAt(0).setVisibility(View.GONE);
+
+				if (isPast((int) (Float.parseFloat(valueList.get(position).get("lesson") + "0")))) {
+					Log.v("stkagym-vp", "grau!");
+					((ViewGroup) view.getChildAt(1)).getChildAt(0).setAlpha(0.3f);
 				} else {
-					((ViewGroup) view).getChildAt(0).setVisibility(View.GONE);
+					((ViewGroup) view.getChildAt(1)).getChildAt(0).setAlpha(1f);
 				}
+
 				return view;
 			}
 		};
@@ -96,6 +127,7 @@ public class MainActivity extends Activity {
 		HashMap<String, Object> data = new HashMap<String, Object>();
 		data.put("valueList", valueList);
 		data.put("currentStrings", currentStrings);
+		data.put("date", date);
 		return data;
 	}
 
@@ -107,9 +139,10 @@ public class MainActivity extends Activity {
 			bar.setVisibility(View.VISIBLE);
 		}
 
-		String localDate = "";
+		String localDateString = "";
 		String localMessage = "";
-		List<Map<String, String>> localValueList = new ArrayList<Map<String, String>>();;
+		List<Map<String, String>> localValueList = new ArrayList<Map<String, String>>();
+		Date localDate;
 
 		/*
 		 * Gibt false zurück, wenn nicht neu gerendert werden muss.
@@ -138,10 +171,20 @@ public class MainActivity extends Activity {
 			Matcher dateMatcher = datePattern.matcher(data);
 
 			if (dateMatcher.find()) {
-				localDate = dateMatcher.group(1);
+				localDateString = dateMatcher.group(1);
 			} else {
 				localMessage = "Fehler: Unvollständige Daten";
 				return true;
+			}
+
+			SimpleDateFormat format = new SimpleDateFormat("dd. MMM yyyy", Locale.GERMAN);
+
+			try {
+				String date_str = localDateString.split(", ")[1];
+				localDate = format.parse(date_str);
+			} catch (ParseException e) {
+				e.printStackTrace();
+				Log.v("stkagym-vp", "Error parsing date");
 			}
 
 			String[] toplevelsplitting = data.split("<FONT FACE=\"Arial\"><H3><CENTER>Ersatzraumplan f&uuml;r (.*)</CENTER></H3></FONT>");
@@ -237,8 +280,10 @@ public class MainActivity extends Activity {
 			if (!result)
 				return;
 
-			updateTextView(R.id.date, localDate);
+			updateTextView(R.id.date, localDateString);
 			updateTextView(R.id.message, localMessage);
+
+			date = localDate;
 
 			valueList.clear();
 			valueList.addAll(localValueList);
@@ -315,6 +360,24 @@ public class MainActivity extends Activity {
 		return prefs.getString("cached_page", "");
 	}
 
+	private boolean isPast(int l) {
+		Date now = new Date();
+
+		/* DEBUG */
+		SimpleDateFormat format = new SimpleDateFormat("HH:mm dd. MMM yyyy", Locale.GERMAN);
+		String date_str = "11:20 14. Jan 2013";
+		try {
+			now = format.parse(date_str);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		/* DEBUG END */
+		Log.v("stkagym-vp", now.getTime() + " " + date.getTime() + " " + lessonMins[l] * 60 * 1000);
+		long diff = now.getTime() - date.getTime() - lessonMins[l - 1] * 60 * 1000;
+		return diff >= 0;
+	}
+
 	/*
 	 * Erstellung des Menu-Button Menüs
 	 */
@@ -351,7 +414,8 @@ public class MainActivity extends Activity {
 	public String downloadData(boolean allowCache) {
 		String result = "";
 		HttpClient httpclient = new DefaultHttpClient();
-		httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "Vertretungsplan-App/"+this.getString(R.string.settings_version_number));
+		httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
+				"Vertretungsplan-App/" + this.getString(R.string.settings_version_number));
 		HttpGet httpget = new HttpGet("http://www.gymnasium-kamen.de/pages/vp.html");
 
 		if (allowCache)
