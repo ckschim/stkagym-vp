@@ -389,13 +389,13 @@ public class MainActivity extends Activity {
 		Date now = new Date();
 
 		/* DEBUG */
-		SimpleDateFormat format = new SimpleDateFormat("HH:mm dd. MMM yyyy", Locale.GERMAN);
+		/*SimpleDateFormat format = new SimpleDateFormat("HH:mm dd. MMM yyyy", Locale.GERMAN);
 		String date_str = "11:20 14. Jan 2013";
 		try {
 			now = format.parse(date_str);
 		} catch (ParseException e) {
 			e.printStackTrace();
-		}
+		}*/
 
 		/* DEBUG END */
 		long diff = now.getTime() - date.getTime() - lessonMins[l - 1] * 60 * 1000;
