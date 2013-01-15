@@ -64,8 +64,10 @@ public class MainActivity extends Activity {
 				13 * 60 +  0, 
 				13 * 60 + 50, 
 				14 * 60 + 45,
-				15 * 60 + 35, 
-				16 * 60 + 20 };
+				15 * 60 + 35, //Ab dem nächsten geraten 
+				16 * 60 + 20,
+				17 * 60 + 30,
+				18 * 60 + 30};
 		/* @formatter:on */
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -96,13 +98,25 @@ public class MainActivity extends Activity {
 				ViewGroup view = (ViewGroup) super.getView(position, convertView, parent);
 				if (valueList.get(position).get("section") != null) {
 					view.getChildAt(0).setVisibility(View.VISIBLE);
-				} else
+				} else {
 					view.getChildAt(0).setVisibility(View.GONE);
+				}
+
+				TextView t1 = (TextView) ((ViewGroup) view.getChildAt(1)).getChildAt(0);
+				TextView t2 = (TextView) ((ViewGroup) view.getChildAt(1)).getChildAt(1);
+				TextView t3 = (TextView) ((ViewGroup) view.getChildAt(1)).getChildAt(3);
+				ImageView i1 = (ImageView) ((ViewGroup) view.getChildAt(1)).getChildAt(2);
 
 				if (isPast((int) (Float.parseFloat(valueList.get(position).get("lesson") + "0")))) {
-					((ViewGroup) view.getChildAt(1)).getChildAt(0).setAlpha(0.3f);
+					t1.setTextColor(t1.getTextColors().withAlpha(77));
+					t2.setTextColor(t1.getTextColors().withAlpha(77));
+					t3.setTextColor(t1.getTextColors().withAlpha(77));
+					i1.setAlpha(77);
 				} else {
-					((ViewGroup) view.getChildAt(1)).getChildAt(0).setAlpha(1f);
+					t1.setTextColor(t1.getTextColors().withAlpha(255));
+					t2.setTextColor(t1.getTextColors().withAlpha(255));
+					t3.setTextColor(t1.getTextColors().withAlpha(255));
+					i1.setAlpha(255);
 				}
 
 				return view;
@@ -297,11 +311,11 @@ public class MainActivity extends Activity {
 			bar.setVisibility(View.INVISIBLE);
 
 			ImageView warn = (ImageView) findViewById(R.id.cache_warning);
-			if(isOfflineCached)
+			if (isOfflineCached)
 				warn.setVisibility(View.VISIBLE);
 			else
 				warn.setVisibility(View.INVISIBLE);
-			
+
 			if (!result)
 				return;
 
@@ -388,16 +402,18 @@ public class MainActivity extends Activity {
 	private boolean isPast(int l) {
 		Date now = new Date();
 
-		/* DEBUG */
+		/* DEBUG @formatter:off */
 		/*SimpleDateFormat format = new SimpleDateFormat("HH:mm dd. MMM yyyy", Locale.GERMAN);
-		String date_str = "11:20 14. Jan 2013";
+		String date_str = "12:00 15. Jan 2013";
 		try {
 			now = format.parse(date_str);
 		} catch (ParseException e) {
 			e.printStackTrace();
-		}*/
-
-		/* DEBUG END */
+		}
+		*/
+		/* DEBUG END @formatter:on */
+		if (lessonMins.length < l)
+			return false;
 		long diff = now.getTime() - date.getTime() - lessonMins[l - 1] * 60 * 1000;
 		return diff >= 0;
 	}
