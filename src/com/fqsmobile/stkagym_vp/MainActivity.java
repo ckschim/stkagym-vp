@@ -137,7 +137,7 @@ public class MainActivity extends Activity {
 		warn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				new AlertDialog.Builder(MainActivity.this).setMessage(
-						"Es besteht keine aktive Internetverbindung. Die angezeigten Daten sind möglicherweise nicht aktuell.").show();
+						"Es besteht keine aktive Internetverbindung oder ein Problem mit der Website. Die angezeigten Daten sind möglicherweise nicht aktuell.").show();
 			}
 		});
 	}
@@ -172,19 +172,9 @@ public class MainActivity extends Activity {
 		 */
 		@Override
 		protected Boolean doInBackground(Boolean... isAlreadyRendered) {
-			String data;
+			String data = "";
 
-			if (!isOnline()) {
-				String cacheData = prefs.getString("cached_page", "");
-				if (prefs.getString("cached_page", "").length() > 0) {
-					data = cacheData;
-					isOfflineCached = true;
-				} else {
-					localMessage = "Keine Internetverbindung";
-					isOfflineCached = false;
-					return true;
-				}
-			} else {
+			if (isOnline()) {
 				data = downloadData(true);
 
 				if (data.equals("304") && isAlreadyRendered[0]) {
@@ -197,6 +187,18 @@ public class MainActivity extends Activity {
 				if (data.length() == 0)
 					data = downloadData(false);
 				isOfflineCached = false;
+			}
+
+			if (!isOnline() || data.length() == 0) {
+				String cacheData = prefs.getString("cached_page", "");
+				if (prefs.getString("cached_page", "").length() > 0) {
+					data = cacheData;
+					isOfflineCached = true;
+				} else {
+					localMessage = "Keine Internetverbindung";
+					isOfflineCached = false;
+					return true;
+				}
 			}
 
 			String pattern = "\\<FONT FACE\\=\"Arial\"\\>\\<H3\\>\\<CENTER\\>Vertretungsplan f&uuml;r (.*)\\<\\/CENTER\\><\\/H3\\><\\/FONT\\>";
