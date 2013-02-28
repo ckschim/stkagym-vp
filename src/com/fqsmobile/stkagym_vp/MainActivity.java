@@ -216,10 +216,12 @@ public class MainActivity extends Activity {
 
 			try {
 				String date_str = localDateString.split(", ")[1];
+				date_str = date_str.replaceAll("Mrz", "Mär");
 				localDate = format.parse(date_str);
 			} catch (ParseException e) {
 				e.printStackTrace();
-				Log.v("stkagym-vp", "Error parsing date");
+				Log.e("stkagym-vp", "Error parsing date");
+				localDate = new Date();
 			}
 
 			String[] toplevelsplitting = data.split("<FONT FACE=\"Arial\"><H3><CENTER>Ersatzraumplan f&uuml;r (.*)</CENTER></H3></FONT>");
