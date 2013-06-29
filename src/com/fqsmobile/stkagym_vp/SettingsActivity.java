@@ -10,9 +10,7 @@ import android.preference.PreferenceManager;
 
 public class SettingsActivity extends PreferenceActivity {
 
-	MainActivity mainactivity = new MainActivity();
-
-	@SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

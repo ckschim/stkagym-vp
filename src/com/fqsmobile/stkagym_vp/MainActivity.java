@@ -59,9 +59,9 @@ public class MainActivity extends Activity {
 				 8 * 60 + 25, 
 				 9 * 60 + 15, 
 				10 * 60 + 15, 
-				11 * 60 + 05, 
+				11 * 60 +  5,
 				12 * 60 + 10, 
-				13 * 60 +  0, 
+				13 * 60     ,
 				13 * 60 + 50, 
 				14 * 60 + 45,
 				15 * 60 + 35, //Ab dem nächsten geraten 
@@ -145,7 +145,9 @@ public class MainActivity extends Activity {
 	/*
 	 * Daten speichern wenn App verlassen wird
 	 */
-	public Object onRetainNonConfigurationInstance() {
+	@Override
+    @SuppressWarnings("deprecation")
+    public Object onRetainNonConfigurationInstance() {
 		HashMap<String, Object> data = new HashMap<String, Object>();
 		data.put("valueList", valueList);
 		data.put("currentStrings", currentStrings);
@@ -245,7 +247,7 @@ public class MainActivity extends Activity {
 				for (int i = 1; i < k.length; i++) {
 					String[] buf = k[i].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
 					String[] set = buf[0].split("</TR>");
-					localValueList = addDataset(set, "KLAUSUREN", i == 1 ? true : false, localValueList);
+					localValueList = addDataset(set, "KLAUSUREN", i == 1, localValueList);
 				}
 			}
 
@@ -506,10 +508,10 @@ public class MainActivity extends Activity {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
 
-		String line = null;
+		String line;
 		try {
 			while ((line = reader.readLine()) != null) {
-				sb.append(line + "\n");
+				sb.append(line).append("\n");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -529,10 +531,7 @@ public class MainActivity extends Activity {
 	public boolean isOnline() {
 		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo netInfo = cm.getActiveNetworkInfo();
-		if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-			return true;
-		}
-		return false;
-	}
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 
 }
