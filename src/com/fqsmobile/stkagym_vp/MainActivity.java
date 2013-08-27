@@ -56,13 +56,13 @@ public class MainActivity extends Activity {
 
 		/* @formatter:off */
 		lessonMins = new long[] { 
-				 8 * 60 + 25, 
-				 9 * 60 + 15, 
-				10 * 60 + 15, 
+				 8 * 60 + 25,
+				 9 * 60 + 15,
+				10 * 60 + 15,
 				11 * 60 +  5,
-				12 * 60 + 10, 
+				12 * 60 + 10,
 				13 * 60     ,
-				13 * 60 + 50, 
+				13 * 60 + 50,
 				14 * 60 + 45,
 				15 * 60 + 35, //Ab dem nächsten geraten 
 				16 * 60 + 20,
@@ -177,17 +177,7 @@ public class MainActivity extends Activity {
 			String data = "";
 
 			if (isOnline()) {
-				data = downloadData(true);
-
-				if (data.equals("304") && isAlreadyRendered[0]) {
-					isOfflineCached = false;
-					return false;
-				} else if (data.equals("304"))
-					data = prefs.getString("cached_page", "");
-
-				// If all the caching caching goes wrong
-				if (data.length() == 0)
-					data = downloadData(false);
+				data = downloadData();
 				isOfflineCached = false;
 			}
 
@@ -456,13 +446,14 @@ public class MainActivity extends Activity {
 	/*
 	 * Lädt Daten herunter. Wenn der Parameter wahr ist, wird im Falle eine
 	 * Cache-Hits "304" zurückgegeben.
-	 */
+	 *
+	 * ---- Funktioniert nur wenn Etags vom Server unterstützt werden. ----
 	public String downloadData(boolean allowCache) {
 		String result = "";
 		HttpClient httpclient = new DefaultHttpClient();
 		httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
 				"Vertretungsplan-App/" + this.getString(R.string.settings_version_number));
-		HttpGet httpget = new HttpGet("http://www.gymnasium-kamen.de/pages/vp.html");
+		HttpGet httpget = new HttpGet("http://gymnasium.schulen-kamen.de/horizontales-menu/vertretungsplan.html");
 
 		if (allowCache)
 			httpget.addHeader("If-None-Match", getEtag());
@@ -494,7 +485,35 @@ public class MainActivity extends Activity {
 
 		return result;
 	}
+    */
+    public String downloadData() {
+        String result = "";
+        HttpClient httpclient = new DefaultHttpClient();
+        httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
+                "Vertretungsplan-App/" + this.getString(R.string.settings_version_number));
+        HttpGet httpget = new HttpGet("http://gymnasium.schulen-kamen.de/horizontales-menu/vertretungsplan.html");
 
+        HttpResponse response;
+        try {
+            response = httpclient.execute(httpget);
+            HttpEntity entity = response.getEntity();
+
+            if (entity != null) {
+                InputStream instream = entity.getContent();
+                result = convertStreamToString(instream);
+                instream.close();
+
+                prefsEditor.putString("cached_page", result);
+                prefsEditor.commit();
+            }
+
+        } catch (Exception e) {
+            Log.e("stkagym-vp", e.toString());
+            return "";
+        }
+
+        return result;
+    }
 	/*
 	 * Konvertiert einen Stream zu einem String
 	 */
