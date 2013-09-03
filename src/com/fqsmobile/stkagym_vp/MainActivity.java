@@ -491,7 +491,7 @@ public class MainActivity extends Activity {
         HttpClient httpclient = new DefaultHttpClient();
         httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
                 "Vertretungsplan-App/" + this.getString(R.string.settings_version_number));
-        HttpGet httpget = new HttpGet("http://gymnasium.schulen-kamen.de/horizontales-menu/vertretungsplan.html");
+        HttpGet httpget = new HttpGet("http://www.gymnasium-kamen.de/horizontales-menu/vertretungsplan.html");
 
         HttpResponse response;
         try {
