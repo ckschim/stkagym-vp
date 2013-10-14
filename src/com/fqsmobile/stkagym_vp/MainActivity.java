@@ -193,7 +193,7 @@ public class MainActivity extends Activity {
 				}
 			}
 
-			String pattern = "\\<FONT FACE\\=\"Arial\"\\>\\<H3\\>\\<CENTER\\>Vertretungsplan f&uuml;r (.*)\\<\\/CENTER\\><\\/H3\\><\\/FONT\\>";
+			String pattern = "\\<H3\\>Vertretungsplan f&uuml;r (.*)<\\/H3\\>";
 			Pattern datePattern = Pattern.compile(pattern);
 			Matcher dateMatcher = datePattern.matcher(data);
 
@@ -216,26 +216,26 @@ public class MainActivity extends Activity {
 				localDate = new Date();
 			}
 
-			String[] toplevelsplitting = data.split("<FONT FACE=\"Arial\"><H3><CENTER>Ersatzraumplan f&uuml;r (.*)</CENTER></H3></FONT>");
+			String[] toplevelsplitting = data.split("<H3>Ersatzraumplan f&uuml;r (.*)</H3>");
 
 			// Vertretungen
-			String[] v = toplevelsplitting[0].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">"
-					+ currentStrings.get(R.id.grade) + "</FONT></B></CENTER></TD>");
+			String[] v = toplevelsplitting[0].split("<TD COLSPAN=5><DIV ID=\"Titel\">"
+					+ currentStrings.get(R.id.grade) + "</DIV></TD>");
 
 			if (v.length > 1) {
-				String[] v_dataset = v[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
+				String[] v_dataset = v[1].split("<TD COLSPAN=5><DIV ID=\"Titel\">");
 				v_dataset = v_dataset[0].split("</TR>");
 				localValueList = addDataset(v_dataset, "VERTRETUNGEN", true, localValueList);
 			}
 
 			// Klausuren
 
-			String[] k = toplevelsplitting[0].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">K"
-					+ currentStrings.get(R.id.grade) + "[a-z]</FONT></B></CENTER></TD>");
+			String[] k = toplevelsplitting[0].split("<TD COLSPAN=5><DIV ID=\"Titel\">K"
+					+ currentStrings.get(R.id.grade) + "[a-z]</DIV></TD>");
 
 			if (k.length > 1) {
 				for (int i = 1; i < k.length; i++) {
-					String[] buf = k[i].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
+					String[] buf = k[i].split("<TD COLSPAN=5><DIV ID=\"Titel\">");
 					String[] set = buf[0].split("</TR>");
 					localValueList = addDataset(set, "KLAUSUREN", i == 1, localValueList);
 				}
@@ -243,10 +243,10 @@ public class MainActivity extends Activity {
 
 			// Ersatzraumplan
 
-			String[] e = toplevelsplitting[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">"
-					+ currentStrings.get(R.id.grade) + "</FONT></B></CENTER></TD>");
+			String[] e = toplevelsplitting[1].split("<TD COLSPAN=5><DIV ID=\"Titel\">"
+					+ currentStrings.get(R.id.grade) + "</DIV></TD>");
 			if (e.length > 1) {
-				String[] e_dataset = e[1].split("<TD COLSPAN=5 BGCOLOR=\"#[0-9A-Z]{6}\"><CENTER><B><FONT FACE=\"Arial\" SIZE=\"0\">");
+				String[] e_dataset = e[1].split("<TD COLSPAN=5><DIV ID=\"Titel\">");
 				e_dataset = e_dataset[0].split("</TR>");
 				localValueList = addDataset(e_dataset, "ERSATZRAUMPLAN", true, localValueList);
 			}
@@ -262,7 +262,7 @@ public class MainActivity extends Activity {
 				List<Map<String, String>> localValueList) {
 			for (int i = 1; i < pDataset.length - 1; i++) {
 				// http://cdn.memegenerator.net/instances/400x/30464908.jpg
-				pDataset[i] = pDataset[i].replaceAll("</FONT></CENTER></TD>", "");
+				pDataset[i] = pDataset[i].replaceAll("</DIV></TD>", "");
 				pDataset[i] = pDataset[i].replaceAll("-----", "");
 				pDataset[i] = pDataset[i].replaceAll("AUFS ", "");
 				pDataset[i] = pDataset[i].replaceAll("aufs ", "");
@@ -272,7 +272,7 @@ public class MainActivity extends Activity {
 				pDataset[i] = pDataset[i].replaceAll("&uuml;", "ü");
 				pDataset[i] = pDataset[i].replaceAll("&szlig;", "ß");
 				String[] set = pDataset[i]
-						.split("<TD><CENTER><FONT FACE=\"Arial\" SIZE=\"0\">|<TD><CENTER><FONT COLOR=\"#FF0000\" FACE=\"Arial\" SIZE=\"0\">");
+						.split("<TD><DIV ID=\"[a-zA-Z]{4,5}\">");
 				if (set[1].startsWith("0"))
 					set[1] = set[1].substring(1, 3);
 				else
@@ -491,7 +491,7 @@ public class MainActivity extends Activity {
         HttpClient httpclient = new DefaultHttpClient();
         httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
                 "Vertretungsplan-App/" + this.getString(R.string.settings_version_number));
-        HttpGet httpget = new HttpGet("http://www.gymnasium-kamen.de/horizontales-menu/vertretungsplan.html");
+            HttpGet httpget = new HttpGet("http://www.gymnasium-kamen.de/horizontales-menu/vertretungsplan.html");
 
         HttpResponse response;
         try {
