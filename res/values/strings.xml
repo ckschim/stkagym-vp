@@ -15,7 +15,7 @@
     <string name="subgrade_string"></string>
     <string name="placeholder_date"></string>
     <string name="settings_version">Version</string>
-    <string name="settings_version_number">0.3.4</string>
+    <string name="settings_version_number">0.4.0</string>
     <string name="settings_category_gradeChoice">Filter</string>
     <string name="settings_category_info">Info</string>
 
