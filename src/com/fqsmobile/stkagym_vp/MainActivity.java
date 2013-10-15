@@ -49,7 +49,6 @@ public class MainActivity extends Activity {
     SharedPreferences prefs;
     SharedPreferences.Editor prefsEditor;
     long lessonMins[];
-    private static final String TAG = "MyActivity";
 
     @SuppressLint("UseSparseArrays")
     @SuppressWarnings({"deprecation", "unchecked"})
@@ -112,7 +111,7 @@ public class MainActivity extends Activity {
                 ImageView i1 = (ImageView) ((ViewGroup) view.getChildAt(1)).getChildAt(2);
 
 				/*if (isPast((int) (Float.parseFloat(valueList.get(position).get("lesson") + "0")))) {
-					t1.setTextColor(t1.getTextColors().withAlpha(77));
+                    t1.setTextColor(t1.getTextColors().withAlpha(77));
 					t2.setTextColor(t1.getTextColors().withAlpha(77));
 					t3.setTextColor(t1.getTextColors().withAlpha(77));
 					i1.setAlpha(77);
@@ -180,7 +179,7 @@ public class MainActivity extends Activity {
         protected Boolean doInBackground(Boolean... isAlreadyRendered) {
             String data = "";
             if (isOnline()) {
-                data = downloadData();
+                data = downloadData(true);
                 isOfflineCached = false;
             }
 
@@ -209,8 +208,8 @@ public class MainActivity extends Activity {
 
 
                 substitutionArray = jsonObject.getJSONArray("substitution");
-                roomArray = jsonObject.getJSONArray("room");
-                examArray = jsonObject.getJSONArray("exam");
+                roomArray = jsonObject.getJSONArray("rooms");
+                examArray = jsonObject.getJSONArray("exams");
 
                 for (int i = 0; i < substitutionArray.length(); i++) {
                     gradeObject = substitutionArray.getJSONObject(i);
@@ -476,17 +475,17 @@ public class MainActivity extends Activity {
         }
     }
 
-    /*
-     * Lädt Daten herunter. Wenn der Parameter wahr ist, wird im Falle eine
+
+     /* Lädt Daten herunter. Wenn der Parameter wahr ist, wird im Falle eine
      * Cache-Hits "304" zurückgegeben.
      *
-     * ---- Funktioniert nur wenn Etags vom Server unterstützt werden. ----
+     * ---- Funktioniert nur wenn Etags vom Server unterstützt werden. ----*/
     public String downloadData(boolean allowCache) {
         String result = "";
         HttpClient httpclient = new DefaultHttpClient();
         httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
                 "Vertretungsplan-App/" + this.getString(R.string.settings_version_number));
-        HttpGet httpget = new HttpGet("http://gymnasium.schulen-kamen.de/horizontales-menu/vertretungsplan.html");
+        HttpGet httpget = new HttpGet("http://stkagymvp.no-ip.biz:8080/");
 
         if (allowCache)
             httpget.addHeader("If-None-Match", getEtag());
@@ -518,13 +517,13 @@ public class MainActivity extends Activity {
 
         return result;
     }
-    */
-    public String downloadData() {
-        String result = "{\"date\":1381788000,\"substitution\":[{\"grade\":\"Q1\",\"data\":[{\"lesson\":\"1.\",\"from\":\"Deine\",\"to\":\"Mudda\"},{\"lesson\":\"2.\",\"from\":\"Mein\",\"to\":\"Vadda\"}]},{\"grade\":\"Q2\",\"data\":[{\"lesson\":\"3.\",\"from\":\"Deine\",\"to\":\"Mudda\"},{\"lesson\":\"4.\",\"from\":\"Mein\",\"to\":\"Vadda\"}]}],\"room\":[{\"grade\":\"Q1\",\"data\":[{\"lesson\":\"1.\",\"from\":\"hier\",\"to\":\"da\"},{\"lesson\":\"2.\",\"from\":\"deutschland\",\"to\":\"polen\"}]},{\"grade\":\"Q2\",\"data\":[{\"lesson\":\"3.\",\"from\":\"hier\",\"to\":\"da\"},{\"lesson\":\"4.\",\"from\":\"deutschland\",\"to\":\"polen\"}]}],\"exam\":[{\"grade\":\"Q1\",\"data\":[{\"lesson\":\"1.\",\"from\":\"Crämer\",\"to\":\"haha\"},{\"lesson\":\"2.\",\"from\":\"Crämer\",\"to\":\"lol\"}]},{\"grade\":\"Q2\",\"data\":[{\"lesson\":\"3.\",\"from\":\"SÄNDKER,BITCH\",\"to\":\"da\"},{\"lesson\":\"4.\",\"from\":\"asdsad\",\"to\":\"polen\"}]}]}";
-        /*HttpClient httpclient = new DefaultHttpClient();
+
+    /*public String downloadData() {
+        String result = "";
+        HttpClient httpclient = new DefaultHttpClient();
         httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
                 "Vertretungsplan-App/" + this.getString(R.string.settings_version_number));
-            HttpGet httpget = new HttpGet("http://www.gymnasium-kamen.de/horizontales-menu/vertretungsplan.html");
+        HttpGet httpget = new HttpGet("http://stkagymvp.no-ip.biz:8080/");
 
         HttpResponse response;
         try {
@@ -543,38 +542,39 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
             Log.e("stkagym-vp", e.toString());
             return "";
-        }*/
+        }
         return result;
-    }
-	/*
-	 * Konvertiert einen Stream zu einem String
-	 */
-	/*private static String convertStreamToString(InputStream is) {
+    }*/
+
+    /*
+     * Konvertiert einen Stream zu einem String
+     */
+    private static String convertStreamToString(InputStream is) {
 		/*
 		 * To convert the InputStream to String we use the
 		 * BufferedReader.readLine() method. We iterate until the BufferedReader
 		 * return null which means there's no more data to read. Each line will
 		 * appended to a StringBuilder and returned as String.
 		 */
-		/*BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		StringBuilder sb = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
 
-		String line;
-		try {
-			while ((line = reader.readLine()) != null) {
-				sb.append(line).append("\n");
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				is.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return sb.toString();
-	}*/
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
+    }
 
     /*
      * Überprüft ob das Gerät Internetzugriff hat
