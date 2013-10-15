@@ -38,76 +38,80 @@ import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
-public class MainActivity extends Activity {
-	Map<Integer, String> currentStrings;
-	List<Map<String, String>> valueList;
-	Date date;
-	SimpleAdapter adapter;
-	SharedPreferences prefs;
-	SharedPreferences.Editor prefsEditor;
-	long lessonMins[];
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-	@SuppressLint("UseSparseArrays")
-	@SuppressWarnings({ "deprecation", "unchecked" })
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+public class MainActivity extends Activity {
+    Map<Integer, String> currentStrings;
+    List<Map<String, String>> valueList;
+    Date date;
+    SimpleAdapter adapter;
+    SharedPreferences prefs;
+    SharedPreferences.Editor prefsEditor;
+    long lessonMins[];
+    private static final String TAG = "MyActivity";
+
+    @SuppressLint("UseSparseArrays")
+    @SuppressWarnings({"deprecation", "unchecked"})
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
 		/* @formatter:off */
-		lessonMins = new long[] { 
-				 8 * 60 + 25,
-				 9 * 60 + 15,
-				10 * 60 + 15,
-				11 * 60 +  5,
-				12 * 60 + 10,
-				13 * 60     ,
-				13 * 60 + 50,
-				14 * 60 + 45,
-				15 * 60 + 35, //Ab dem nächsten geraten 
-				16 * 60 + 20,
-				17 * 60 + 30,
-				18 * 60 + 30};
-		/* @formatter:on */
+        lessonMins = new long[]{
+                8 * 60 + 25,
+                9 * 60 + 15,
+                10 * 60 + 15,
+                11 * 60 + 5,
+                12 * 60 + 10,
+                13 * 60,
+                13 * 60 + 50,
+                14 * 60 + 45,
+                15 * 60 + 35, //Ab dem nächsten geraten
+                16 * 60 + 20,
+                17 * 60 + 30,
+                18 * 60 + 30};
+        /* @formatter:on */
 
-		prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-		prefsEditor = prefs.edit();
+        prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        prefsEditor = prefs.edit();
 
-		HashMap<String, Object> data = (HashMap<String, Object>) getLastNonConfigurationInstance();
-		if (data == null) {
-			valueList = new ArrayList<Map<String, String>>();
-			currentStrings = new HashMap<Integer, String>();
-			applySettings();
-		} else {
-			valueList = (ArrayList<Map<String, String>>) data.get("valueList");
-			currentStrings = (HashMap<Integer, String>) data.get("currentStrings");
-			Set<Integer> stringKeys = currentStrings.keySet();
+        HashMap<String, Object> data = (HashMap<String, Object>) getLastNonConfigurationInstance();
+        if (data == null) {
+            valueList = new ArrayList<Map<String, String>>();
+            currentStrings = new HashMap<Integer, String>();
+            applySettings();
+        } else {
+            valueList = (ArrayList<Map<String, String>>) data.get("valueList");
+            currentStrings = (HashMap<Integer, String>) data.get("currentStrings");
+            Set<Integer> stringKeys = currentStrings.keySet();
 
-			for (Integer item : stringKeys) {
-				updateTextView(item);
-			}
+            for (Integer item : stringKeys) {
+                updateTextView(item);
+            }
 
-			date = (Date) data.get("date");
-		}
+            date = (Date) data.get("date");
+        }
 
-		adapter = new SimpleAdapter(getApplicationContext(), valueList, R.layout.substitutionitem, new String[] { "section", "lesson",
-				"col1", "col2" }, new int[] { R.id.section, R.id.lesson, R.id.col1, R.id.col2 }) {
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent) {
+        adapter = new SimpleAdapter(getApplicationContext(), valueList, R.layout.substitutionitem, new String[]{"section", "lesson",
+                "col1", "col2"}, new int[]{R.id.section, R.id.lesson, R.id.col1, R.id.col2}) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
 
-				ViewGroup view = (ViewGroup) super.getView(position, convertView, parent);
-				if (valueList.get(position).get("section") != null) {
-					view.getChildAt(0).setVisibility(View.VISIBLE);
-				} else {
-					view.getChildAt(0).setVisibility(View.GONE);
-				}
+                ViewGroup view = (ViewGroup) super.getView(position, convertView, parent);
+                if (valueList.get(position).get("section") != null) {
+                    view.getChildAt(0).setVisibility(View.VISIBLE);
+                } else {
+                    view.getChildAt(0).setVisibility(View.GONE);
+                }
 
-				TextView t1 = (TextView) ((ViewGroup) view.getChildAt(1)).getChildAt(0);
-				TextView t2 = (TextView) ((ViewGroup) view.getChildAt(1)).getChildAt(1);
-				TextView t3 = (TextView) ((ViewGroup) view.getChildAt(1)).getChildAt(3);
-				ImageView i1 = (ImageView) ((ViewGroup) view.getChildAt(1)).getChildAt(2);
+                TextView t1 = (TextView) ((ViewGroup) view.getChildAt(1)).getChildAt(0);
+                TextView t2 = (TextView) ((ViewGroup) view.getChildAt(1)).getChildAt(1);
+                TextView t3 = (TextView) ((ViewGroup) view.getChildAt(1)).getChildAt(3);
+                ImageView i1 = (ImageView) ((ViewGroup) view.getChildAt(1)).getChildAt(2);
 
-				if (isPast((int) (Float.parseFloat(valueList.get(position).get("lesson") + "0")))) {
+				/*if (isPast((int) (Float.parseFloat(valueList.get(position).get("lesson") + "0")))) {
 					t1.setTextColor(t1.getTextColors().withAlpha(77));
 					t2.setTextColor(t1.getTextColors().withAlpha(77));
 					t3.setTextColor(t1.getTextColors().withAlpha(77));
@@ -117,83 +121,163 @@ public class MainActivity extends Activity {
 					t2.setTextColor(t1.getTextColors().withAlpha(255));
 					t3.setTextColor(t1.getTextColors().withAlpha(255));
 					i1.setAlpha(255);
-				}
+				}*/
 
-				return view;
-			}
-		};
+                return view;
+            }
+        };
 
-		ListView lv = (ListView) findViewById(R.id.substData);
-		lv.setAdapter(adapter);
+        ListView lv = (ListView) findViewById(R.id.substData);
+        lv.setAdapter(adapter);
 
-		final ImageButton button = (ImageButton) findViewById(R.id.button_refresh); // Refresh-Button
-		button.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				new getData().execute(true);
-			}
-		});
+        final ImageButton button = (ImageButton) findViewById(R.id.button_refresh); // Refresh-Button
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                new getData().execute(true);
+            }
+        });
 
-		final ImageView warn = (ImageView) findViewById(R.id.cache_warning);
-		warn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				new AlertDialog.Builder(MainActivity.this).setMessage(
-						"Es besteht keine aktive Internetverbindung oder ein Problem mit der Website. Die angezeigten Daten sind möglicherweise nicht aktuell.").show();
-			}
-		});
-	}
+        final ImageView warn = (ImageView) findViewById(R.id.cache_warning);
+        warn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                new AlertDialog.Builder(MainActivity.this).setMessage(
+                        "Es besteht keine aktive Internetverbindung oder ein Problem mit der Website. Die angezeigten Daten sind möglicherweise nicht aktuell.").show();
+            }
+        });
+    }
 
-	/*
-	 * Daten speichern wenn App verlassen wird
-	 */
-	@Override
+    /*
+     * Daten speichern wenn App verlassen wird
+     */
+    @Override
     @SuppressWarnings("deprecation")
     public Object onRetainNonConfigurationInstance() {
-		HashMap<String, Object> data = new HashMap<String, Object>();
-		data.put("valueList", valueList);
-		data.put("currentStrings", currentStrings);
-		data.put("date", date);
-		return data;
-	}
+        HashMap<String, Object> data = new HashMap<String, Object>();
+        data.put("valueList", valueList);
+        data.put("currentStrings", currentStrings);
+        data.put("date", date);
+        return data;
+    }
 
-	private class getData extends AsyncTask<Boolean, Void, Boolean> {
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
-			bar.setVisibility(View.VISIBLE);
-		}
+    private class getData extends AsyncTask<Boolean, Void, Boolean> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
+            bar.setVisibility(View.VISIBLE);
+        }
 
-		String localDateString = "";
-		String localMessage = "";
-		List<Map<String, String>> localValueList = new ArrayList<Map<String, String>>();
-		Date localDate;
-		boolean isOfflineCached;
+        String localDateString = "";
+        String localMessage = "";
+        List<Map<String, String>> localValueList = new ArrayList<Map<String, String>>();
+        Date localDate;
+        boolean isOfflineCached;
 
-		/*
-		 * Gibt false zurück, wenn nicht neu gerendert werden muss.
-		 */
-		@Override
-		protected Boolean doInBackground(Boolean... isAlreadyRendered) {
-			String data = "";
+        /*
+         * Gibt false zurück, wenn nicht neu gerendert werden muss.
+         */
+        @Override
+        protected Boolean doInBackground(Boolean... isAlreadyRendered) {
+            String data = "";
+            if (isOnline()) {
+                data = downloadData();
+                isOfflineCached = false;
+            }
 
-			if (isOnline()) {
-				data = downloadData();
-				isOfflineCached = false;
-			}
+            if (!isOnline() || data.length() == 0) {
+                String cacheData = prefs.getString("cached_page", "");
+                if (prefs.getString("cached_page", "").length() > 0) {
+                    data = cacheData;
+                    isOfflineCached = true;
+                } else {
+                    localMessage = "Keine Internetverbindung";
+                    isOfflineCached = false;
+                    return true;
+                }
+            }
 
-			if (!isOnline() || data.length() == 0) {
-				String cacheData = prefs.getString("cached_page", "");
-				if (prefs.getString("cached_page", "").length() > 0) {
-					data = cacheData;
-					isOfflineCached = true;
-				} else {
-					localMessage = "Keine Internetverbindung";
-					isOfflineCached = false;
-					return true;
-				}
-			}
+            try {
+                JSONObject jsonObject = new JSONObject(data);
+                String[] dataSet;
 
-			String pattern = "\\<H3\\>Vertretungsplan f&uuml;r (.*)<\\/H3\\>";
+                JSONObject gradeObject, lessonObject;
+                JSONArray substitutionArray, roomArray, examArray, dataArray;
+                String lesson, from, to;
+                boolean isTitle = false;
+
+                int eDate = jsonObject.getInt("date");
+
+
+                substitutionArray = jsonObject.getJSONArray("substitution");
+                roomArray = jsonObject.getJSONArray("room");
+                examArray = jsonObject.getJSONArray("exam");
+
+                for (int i = 0; i < substitutionArray.length(); i++) {
+                    gradeObject = substitutionArray.getJSONObject(i);
+                    if (gradeObject.getString("grade").equals(getGradePrefs())) {
+                        dataArray = gradeObject.getJSONArray("data");
+                        for (int j = 0; j < dataArray.length(); j++) {
+                            lessonObject = dataArray.getJSONObject(j);
+                            lesson = lessonObject.getString("lesson");
+                            from = lessonObject.getString("from");
+                            to = lessonObject.getString("to");
+                            dataSet = new String[]{lesson, from, to};
+                            if (j == 0)
+                                isTitle = true;
+                            else
+                                isTitle = false;
+                            localValueList = addDataset(dataSet, "VERTRETUNGEN", isTitle, localValueList);
+                        }
+                    }
+                }
+
+                for (int i = 0; i < roomArray.length(); i++) {
+                    gradeObject = roomArray.getJSONObject(i);
+                    if (gradeObject.getString("grade").equals(getGradePrefs())) {
+                        dataArray = gradeObject.getJSONArray("data");
+                        for (int j = 0; j < dataArray.length(); j++) {
+                            lessonObject = dataArray.getJSONObject(j);
+                            lesson = lessonObject.getString("lesson");
+                            from = lessonObject.getString("from");
+                            to = lessonObject.getString("to");
+                            dataSet = new String[]{lesson, from, to};
+                            if (j == 0)
+                                isTitle = true;
+                            else
+                                isTitle = false;
+                            localValueList = addDataset(dataSet, "RAUMVERTRETUNGSPLAN", isTitle, localValueList);
+                        }
+                    }
+                }
+
+                for (int i = 0; i < examArray.length(); i++) {
+                    gradeObject = examArray.getJSONObject(i);
+                    if (gradeObject.getString("grade").equals(getGradePrefs())) {
+                        dataArray = gradeObject.getJSONArray("data");
+                        for (int j = 0; j < dataArray.length(); j++) {
+                            lessonObject = dataArray.getJSONObject(j);
+                            lesson = lessonObject.getString("lesson");
+                            from = lessonObject.getString("from");
+                            to = lessonObject.getString("to");
+                            dataSet = new String[]{lesson, from, to};
+                            if (j == 0)
+                                isTitle = true;
+                            else
+                                isTitle = false;
+                            localValueList = addDataset(dataSet, "KLAUSUREN", isTitle, localValueList);
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+
+
+
+			/*String pattern = "\\<H3\\>Vertretungsplan f&uuml;r (.*)<\\/H3\\>";
 			Pattern datePattern = Pattern.compile(pattern);
 			Matcher dateMatcher = datePattern.matcher(data);
 
@@ -204,7 +288,7 @@ public class MainActivity extends Activity {
 				return true;
 			}
 
-			SimpleDateFormat format = new SimpleDateFormat("dd. MMM yyyy", Locale.GERMAN);
+			/*SimpleDateFormat format = new SimpleDateFormat("dd. MMM yyyy", Locale.GERMAN);
 
 			try {
 				String date_str = localDateString.split(", ")[1];
@@ -214,188 +298,137 @@ public class MainActivity extends Activity {
 				e.printStackTrace();
 				Log.e("stkagym-vp", "Error parsing date");
 				localDate = new Date();
-			}
+			}*/
 
-			String[] toplevelsplitting = data.split("<H3>Ersatzraumplan f&uuml;r (.*)</H3>");
 
-			// Vertretungen
-			String[] v = toplevelsplitting[0].split("<TD COLSPAN=5><DIV ID=\"Titel\">"
-					+ currentStrings.get(R.id.grade) + "</DIV></TD>");
+            if (localValueList.size() == 0) {
+                localMessage = "Es gibt aktuell keine Änderungen";
+            }
 
-			if (v.length > 1) {
-				String[] v_dataset = v[1].split("<TD COLSPAN=5><DIV ID=\"Titel\">");
-				v_dataset = v_dataset[0].split("</TR>");
-				localValueList = addDataset(v_dataset, "VERTRETUNGEN", true, localValueList);
-			}
+            return true;
+        }
 
-			// Klausuren
+        private List<Map<String, String>> addDataset(String[] pDataset, String setName, boolean isSection,
+                                                     List<Map<String, String>> localValueList) {
+            String[] set = new String[]{pDataset[0], pDataset[1], pDataset[2]};
+            Map<String, String> m = new HashMap<String, String>();
+            m.put("lesson", set[0]);
+            m.put("col1", set[1]);
+            if (set.length == 6)
+                m.put("col2", set[2] + set[3]);
+            else
+                m.put("col2", set[2]);
 
-			String[] k = toplevelsplitting[0].split("<TD COLSPAN=5><DIV ID=\"Titel\">K"
-					+ currentStrings.get(R.id.grade) + "[a-z]</DIV></TD>");
+            if (isSection) {
+                m.put("section", setName);
+            }
 
-			if (k.length > 1) {
-				for (int i = 1; i < k.length; i++) {
-					String[] buf = k[i].split("<TD COLSPAN=5><DIV ID=\"Titel\">");
-					String[] set = buf[0].split("</TR>");
-					localValueList = addDataset(set, "KLAUSUREN", i == 1, localValueList);
-				}
-			}
+            localValueList.add(m);
 
-			// Ersatzraumplan
+            return localValueList;
+        }
 
-			String[] e = toplevelsplitting[1].split("<TD COLSPAN=5><DIV ID=\"Titel\">"
-					+ currentStrings.get(R.id.grade) + "</DIV></TD>");
-			if (e.length > 1) {
-				String[] e_dataset = e[1].split("<TD COLSPAN=5><DIV ID=\"Titel\">");
-				e_dataset = e_dataset[0].split("</TR>");
-				localValueList = addDataset(e_dataset, "ERSATZRAUMPLAN", true, localValueList);
-			}
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+        }
 
-			if (localValueList.size() == 0) {
-				localMessage = "Es gibt aktuell keine Änderungen";
-			}
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
 
-			return true;
-		}
+            ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
+            bar.setVisibility(View.INVISIBLE);
 
-		private List<Map<String, String>> addDataset(String[] pDataset, String setName, boolean isSection,
-				List<Map<String, String>> localValueList) {
-			for (int i = 1; i < pDataset.length - 1; i++) {
-				// http://cdn.memegenerator.net/instances/400x/30464908.jpg
-				pDataset[i] = pDataset[i].replaceAll("</DIV></TD>", "");
-				pDataset[i] = pDataset[i].replaceAll("-----", "");
-				pDataset[i] = pDataset[i].replaceAll("AUFS ", "");
-				pDataset[i] = pDataset[i].replaceAll("aufs ", "");
-				pDataset[i] = pDataset[i].replaceAll("\n", "");
-				pDataset[i] = pDataset[i].replaceAll("&auml;", "ä");
-				pDataset[i] = pDataset[i].replaceAll("&ouml;", "ö");
-				pDataset[i] = pDataset[i].replaceAll("&uuml;", "ü");
-				pDataset[i] = pDataset[i].replaceAll("&szlig;", "ß");
-				String[] set = pDataset[i]
-						.split("<TD><DIV ID=\"[a-zA-Z]{4,5}\">");
-				if (set[1].startsWith("0"))
-					set[1] = set[1].substring(1, 3);
-				else
-					set[1] = set[1].substring(0, 3);
+            ImageView warn = (ImageView) findViewById(R.id.cache_warning);
+            if (isOfflineCached)
+                warn.setVisibility(View.VISIBLE);
+            else
+                warn.setVisibility(View.INVISIBLE);
 
-				Map<String, String> m = new HashMap<String, String>();
-				m.put("lesson", set[1]);
-				m.put("col1", set[2]);
-				if (set.length == 6)
-					m.put("col2", set[4] + set[5]);
-				else
-					m.put("col2", set[4]);
+            if (!result)
+                return;
 
-				if (i == 1 && isSection) {
-					m.put("section", setName);
-				}
+            updateTextView(R.id.date, localDateString);
+            updateTextView(R.id.message, localMessage);
 
-				localValueList.add(m);
-			}
-			return localValueList;
-		}
+            date = localDate;
 
-		@Override
-		protected void onProgressUpdate(Void... values) {
-			super.onProgressUpdate(values);
-		}
+            valueList.clear();
+            valueList.addAll(localValueList);
+            adapter.notifyDataSetChanged();
+        }
 
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+    }
 
-			ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar1);
-			bar.setVisibility(View.INVISIBLE);
+    /*
+     * (Geänderte) Einstellungen anwenden
+     */
+    public void applySettings() {
+        String grade = getGradePrefs();
+        String subgrade = getSubgradePrefs();
+        ImageButton btn = (ImageButton) findViewById(R.id.button_refresh);
 
-			ImageView warn = (ImageView) findViewById(R.id.cache_warning);
-			if (isOfflineCached)
-				warn.setVisibility(View.VISIBLE);
-			else
-				warn.setVisibility(View.INVISIBLE);
+        if (grade.equals("")) {
+            updateTextView(R.id.message, "Bitte erst Einstellungen vornehmen.\nMenü → Einstellungen\n");
+            btn.setEnabled(false);
+            return;
+        }
 
-			if (!result)
-				return;
+        if (!(grade.equals("EF") || grade.equals("Q1") || grade.equals("Q2")) && subgrade.equals("")) {
 
-			updateTextView(R.id.date, localDateString);
-			updateTextView(R.id.message, localMessage);
+            updateTextView(R.id.message,
+                    "Du hast eine Stufe ausgewählt, aber keine Klasse. Bitte gehe zurück in die Einstellungen und stelle die Klasse ein.");
+            btn.setEnabled(false);
+            return;
+        }
 
-			date = localDate;
+        btn.setEnabled(true);
+        String identifier = grade.concat(subgrade);
+        updateTextView(R.id.grade, identifier);
 
-			valueList.clear();
-			valueList.addAll(localValueList);
-			adapter.notifyDataSetChanged();
-		}
+        new getData().execute(false);
+    }
 
-	}
+    /*
+     * TextView updaten und String speichern
+     */
+    private void updateTextView(int id, String text) {
+        TextView view = (TextView) findViewById(id);
+        view.setText(text);
+        currentStrings.put(id, text);
+    }
 
-	/*
-	 * (Geänderte) Einstellungen anwenden
-	 */
-	public void applySettings() {
-		String grade = getGradePrefs();
-		String subgrade = getSubgradePrefs();
-		ImageButton btn = (ImageButton) findViewById(R.id.button_refresh);
-
-		if (grade.equals("")) {
-			updateTextView(R.id.message, "Bitte erst Einstellungen vornehmen.\nMenü → Einstellungen\n");
-			btn.setEnabled(false);
-			return;
-		}
-
-		if (!(grade.equals("EF") || grade.equals("Q1") || grade.equals("Q2")) && subgrade.equals("")) {
-
-			updateTextView(R.id.message,
-					"Du hast eine Stufe ausgewählt, aber keine Klasse. Bitte gehe zurück in die Einstellungen und stelle die Klasse ein.");
-			btn.setEnabled(false);
-			return;
-		}
-
-		btn.setEnabled(true);
-		String identifier = grade.concat(subgrade);
-		updateTextView(R.id.grade, identifier);
-
-		new getData().execute(false);
-	}
-
-	/*
-	 * TextView updaten und String speichern
-	 */
-	private void updateTextView(int id, String text) {
-		TextView view = (TextView) findViewById(id);
-		view.setText(text);
-		currentStrings.put(id, text);
-	}
-
-	/*
-	 * TextView aus dem Speicher updaten
-	 */
-	private void updateTextView(int id) {
-		TextView view = (TextView) findViewById(id);
-		view.setText(currentStrings.get(id));
-	}
+    /*
+     * TextView aus dem Speicher updaten
+     */
+    private void updateTextView(int id) {
+        TextView view = (TextView) findViewById(id);
+        view.setText(currentStrings.get(id));
+    }
 
 	/*
 	 * Wrapper für sharedPreferences. Gibt jeweils einen gespeicherten String
 	 * zurück (eigentlich überflüssig)
 	 */
 
-	public String getGradePrefs() {
-		return prefs.getString("grades_list", "");
+    public String getGradePrefs() {
+        return prefs.getString("grades_list", "");
 
-	}
+    }
 
-	public String getSubgradePrefs() {
-		return prefs.getString("subgrades_list", "");
-	}
+    public String getSubgradePrefs() {
+        return prefs.getString("subgrades_list", "");
+    }
 
-	public String getEtag() {
-		return prefs.getString("etag", "");
-	}
+    public String getEtag() {
+        return prefs.getString("etag", "");
+    }
 
-	public String getCachedPage() {
-		return prefs.getString("cached_page", "");
-	}
+    public String getCachedPage() {
+        return prefs.getString("cached_page", "");
+    }
 
-	private boolean isPast(int l) {
+	/*private boolean isPast(int l) {
 		Date now = new Date();
 
 		/* DEBUG @formatter:off */
@@ -408,87 +441,87 @@ public class MainActivity extends Activity {
 		}
 		*/
 		/* DEBUG END @formatter:on */
-		if (lessonMins.length < l)
+		/*if (lessonMins.length < l)
 			return false;
 		long diff = now.getTime() - date.getTime() - lessonMins[l - 1] * 60 * 1000;
 		return diff >= 0;
-	}
+	}*/
 
-	/*
-	 * Erstellung des Menu-Button Menüs
-	 */
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.activity_main, menu);
-		return true;
-	}
+    /*
+     * Erstellung des Menu-Button Menüs
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_main, menu);
+        return true;
+    }
 
-	/*
-	 * Verhalten bei Auswahl eines Items des Menüs
-	 * 
-	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
-	 */
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle item selection
-		switch (item.getItemId()) {
-		case R.id.menu_settings:
-			Intent settings_intent = new Intent();
-			settings_intent.setClass(getApplicationContext(), SettingsActivity.class);
-			startActivity(settings_intent);
-			this.finish();
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-	}
+    /*
+     * Verhalten bei Auswahl eines Items des Menüs
+     *
+     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.menu_settings:
+                Intent settings_intent = new Intent();
+                settings_intent.setClass(getApplicationContext(), SettingsActivity.class);
+                startActivity(settings_intent);
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
-	/*
-	 * Lädt Daten herunter. Wenn der Parameter wahr ist, wird im Falle eine
-	 * Cache-Hits "304" zurückgegeben.
-	 *
-	 * ---- Funktioniert nur wenn Etags vom Server unterstützt werden. ----
-	public String downloadData(boolean allowCache) {
-		String result = "";
-		HttpClient httpclient = new DefaultHttpClient();
-		httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
-				"Vertretungsplan-App/" + this.getString(R.string.settings_version_number));
-		HttpGet httpget = new HttpGet("http://gymnasium.schulen-kamen.de/horizontales-menu/vertretungsplan.html");
-
-		if (allowCache)
-			httpget.addHeader("If-None-Match", getEtag());
-
-		HttpResponse response;
-		try {
-			response = httpclient.execute(httpget);
-
-			// Check if cached data is up-to-date
-			if (response.getStatusLine().getStatusCode() == 304) {
-				return "304";
-			}
-
-			HttpEntity entity = response.getEntity();
-
-			if (entity != null) {
-				InputStream instream = entity.getContent();
-				result = convertStreamToString(instream);
-				instream.close();
-
-				prefsEditor.putString("etag", response.getHeaders("Etag")[0].getValue());
-				prefsEditor.putString("cached_page", result);
-				prefsEditor.commit();
-			}
-
-		} catch (Exception e) {
-			return e.toString();
-		}
-
-		return result;
-	}
-    */
-    public String downloadData() {
+    /*
+     * Lädt Daten herunter. Wenn der Parameter wahr ist, wird im Falle eine
+     * Cache-Hits "304" zurückgegeben.
+     *
+     * ---- Funktioniert nur wenn Etags vom Server unterstützt werden. ----
+    public String downloadData(boolean allowCache) {
         String result = "";
         HttpClient httpclient = new DefaultHttpClient();
+        httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
+                "Vertretungsplan-App/" + this.getString(R.string.settings_version_number));
+        HttpGet httpget = new HttpGet("http://gymnasium.schulen-kamen.de/horizontales-menu/vertretungsplan.html");
+
+        if (allowCache)
+            httpget.addHeader("If-None-Match", getEtag());
+
+        HttpResponse response;
+        try {
+            response = httpclient.execute(httpget);
+
+            // Check if cached data is up-to-date
+            if (response.getStatusLine().getStatusCode() == 304) {
+                return "304";
+            }
+
+            HttpEntity entity = response.getEntity();
+
+            if (entity != null) {
+                InputStream instream = entity.getContent();
+                result = convertStreamToString(instream);
+                instream.close();
+
+                prefsEditor.putString("etag", response.getHeaders("Etag")[0].getValue());
+                prefsEditor.putString("cached_page", result);
+                prefsEditor.commit();
+            }
+
+        } catch (Exception e) {
+            return e.toString();
+        }
+
+        return result;
+    }
+    */
+    public String downloadData() {
+        String result = "{\"date\":1381788000,\"substitution\":[{\"grade\":\"Q1\",\"data\":[{\"lesson\":\"1.\",\"from\":\"Deine\",\"to\":\"Mudda\"},{\"lesson\":\"2.\",\"from\":\"Mein\",\"to\":\"Vadda\"}]},{\"grade\":\"Q2\",\"data\":[{\"lesson\":\"3.\",\"from\":\"Deine\",\"to\":\"Mudda\"},{\"lesson\":\"4.\",\"from\":\"Mein\",\"to\":\"Vadda\"}]}],\"room\":[{\"grade\":\"Q1\",\"data\":[{\"lesson\":\"1.\",\"from\":\"hier\",\"to\":\"da\"},{\"lesson\":\"2.\",\"from\":\"deutschland\",\"to\":\"polen\"}]},{\"grade\":\"Q2\",\"data\":[{\"lesson\":\"3.\",\"from\":\"hier\",\"to\":\"da\"},{\"lesson\":\"4.\",\"from\":\"deutschland\",\"to\":\"polen\"}]}],\"exam\":[{\"grade\":\"Q1\",\"data\":[{\"lesson\":\"1.\",\"from\":\"Crämer\",\"to\":\"haha\"},{\"lesson\":\"2.\",\"from\":\"Crämer\",\"to\":\"lol\"}]},{\"grade\":\"Q2\",\"data\":[{\"lesson\":\"3.\",\"from\":\"SÄNDKER,BITCH\",\"to\":\"da\"},{\"lesson\":\"4.\",\"from\":\"asdsad\",\"to\":\"polen\"}]}]}";
+        /*HttpClient httpclient = new DefaultHttpClient();
         httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
                 "Vertretungsplan-App/" + this.getString(R.string.settings_version_number));
             HttpGet httpget = new HttpGet("http://www.gymnasium-kamen.de/horizontales-menu/vertretungsplan.html");
@@ -510,21 +543,20 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
             Log.e("stkagym-vp", e.toString());
             return "";
-        }
-
+        }*/
         return result;
     }
 	/*
 	 * Konvertiert einen Stream zu einem String
 	 */
-	private static String convertStreamToString(InputStream is) {
+	/*private static String convertStreamToString(InputStream is) {
 		/*
 		 * To convert the InputStream to String we use the
 		 * BufferedReader.readLine() method. We iterate until the BufferedReader
 		 * return null which means there's no more data to read. Each line will
 		 * appended to a StringBuilder and returned as String.
 		 */
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		/*BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
 
 		String line;
@@ -542,14 +574,14 @@ public class MainActivity extends Activity {
 			}
 		}
 		return sb.toString();
-	}
+	}*/
 
-	/*
-	 * Überprüft ob das Gerät Internetzugriff hat
-	 */
-	public boolean isOnline() {
-		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+    /*
+     * Überprüft ob das Gerät Internetzugriff hat
+     */
+    public boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
