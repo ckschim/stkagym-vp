@@ -286,7 +286,6 @@ public class MainActivity extends Activity {
                         }
                     }
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
                 localMessage = "Fehler.";
@@ -480,7 +479,7 @@ public class MainActivity extends Activity {
         HttpClient httpclient = new DefaultHttpClient();
         httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
                 "VP-App/" + this.getString(R.string.settings_version_number) + " " + getGradePrefs()+getSubgradePrefs());
-        HttpGet httpget = new HttpGet("http://stkagymvp.no-ip.biz:8081");
+        HttpGet httpget = new HttpGet("http://stkagymvp.no-ip.biz:8080");
 
         if (allowCache)
             httpget.addHeader("If-None-Match", getEtag());
