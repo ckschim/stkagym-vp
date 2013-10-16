@@ -216,7 +216,7 @@ public class MainActivity extends Activity {
 
                 long eDate = jsonObject.getLong("date");
                 localDate = new Date(eDate);
-                SimpleDateFormat dt1 = new SimpleDateFormat("d. MMMM y", Locale.GERMANY);
+                SimpleDateFormat dt1 = new SimpleDateFormat("EEEE, d.M.y", Locale.GERMANY);
                 dt1.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
                 localDateString = dt1.format(localDate);
 
@@ -226,7 +226,7 @@ public class MainActivity extends Activity {
 
                 for (int i = 0; i < substitutionArray.length(); i++) {
                     gradeObject = substitutionArray.getJSONObject(i);
-                    if (gradeObject.getString("grade").equals(getGradePrefs())) {
+                    if (gradeObject.getString("grade").equals(getGradePrefs() + getSubgradePrefs())) {
                         dataArray = gradeObject.getJSONArray("data");
                         for (int j = 0; j < dataArray.length(); j++) {
                             lessonObject = dataArray.getJSONObject(j);
@@ -473,8 +473,8 @@ public class MainActivity extends Activity {
         String result = "";
         HttpClient httpclient = new DefaultHttpClient();
         httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
-                "VP-App/" + this.getString(R.string.settings_version_number) + " " + getGradePrefs());
-        HttpGet httpget = new HttpGet("http://stkagymvp.no-ip.biz:8080/");
+                "VP-App/" + this.getString(R.string.settings_version_number) + " " + getGradePrefs()+getSubgradePrefs());
+        HttpGet httpget = new HttpGet("http://192.168.0.26:8081/");
 
         if (allowCache)
             httpget.addHeader("If-None-Match", getEtag());
