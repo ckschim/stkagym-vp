@@ -214,6 +214,12 @@ public class MainActivity extends Activity {
                 String lesson, from, to;
                 boolean isTitle = false;
 
+                if (!jsonObject.isNull("message"))
+                {
+                    localMessage = jsonObject.getString("message");
+                    return true;
+                }
+
                 long eDate = jsonObject.getLong("date");
                 localDate = new Date(eDate);
                 SimpleDateFormat dt1 = new SimpleDateFormat("EEEE, d.M.y", Locale.GERMANY);
@@ -474,7 +480,7 @@ public class MainActivity extends Activity {
         HttpClient httpclient = new DefaultHttpClient();
         httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
                 "VP-App/" + this.getString(R.string.settings_version_number) + " " + getGradePrefs()+getSubgradePrefs());
-        HttpGet httpget = new HttpGet("http://192.168.0.26:8081/");
+        HttpGet httpget = new HttpGet("http://stkagymvp.no-ip.biz:8081");
 
         if (allowCache)
             httpget.addHeader("If-None-Match", getEtag());
