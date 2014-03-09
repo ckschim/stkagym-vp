@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Vertretungsplan-App: Statistiken</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script src="http://code.highcharts.com/highcharts.js"></script>
+	<style type="text/css">
+		@import url(http://fonts.googleapis.com/css?family=Open+Sans:300);
+		body {
+			text-align: center;
+		}
+		* {
+			font-family: 'Open Sans', sans-serif;
+			font-weight: 300;
+		}
+		#presets {
+			font-size:1em;
+		}
+		#presets a {
+			color: gray;
+		}
+		
+		#textstats {
+			color:gray;
+			font-size:0.9em;
+		}
+	</style>
+	<script type="text/javascript">    
+    var masterChart, detailChart;
+    
+    $(document).ready(function() {
+        // create the master chart
+        function createMaster(data, start, end) {
+            masterChart = $('#master-container').highcharts({
+                chart: {
+                    reflow: false,
+                    borderWidth: 0,
+                    backgroundColor: null,
+                    marginLeft: 50,
+                    marginRight: 50,
+                    marginTop: 0,
+                    zoomType: 'x',
+                    events: {
+    
+                        // listen to the selection event on the master chart to update the
+                        // extremes of the detail chart
+                        selection: function(event) {
+                            var extremesObject = event.xAxis[0],
+                                min = extremesObject.min,
+                                max = extremesObject.max;
+                                /*detailData = [],
+                                xAxis = this.xAxis[0];
+    
+                            // move the plot bands to reflect the new detail span
+                            xAxis.removePlotBand('mask-before');
+                            xAxis.addPlotBand({
+                                id: 'mask-before',
+                                from: start.getTime(),
+                                to: min,
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            });
+    
+                            xAxis.removePlotBand('mask-after');
+                            xAxis.addPlotBand({
+                                id: 'mask-after',
+                                from: max,
+                                to: end.getTime(),
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            });*/
+    
+    
+                            update(parseInt(min),parseInt(max));
+    
+                            return false;
+                        }
+                    }
+                },
+                title: {
+                    text: null
+                },
+                xAxis: {
+                    type: 'datetime',
+                    showLastTickLabel: true,
+                    maxZoom: 14 * 24 * 3600000, // fourteen days
+                    plotBands: [{
+                        id: 'mask-before',
+                        from: start.getTime(),
+                        to: end.getTime(),
+                        color: 'rgba(0, 0, 0, 0.0)'
+                    }],
+                    title: {
+                        text: null
+                    }
+                },
+                yAxis: {
+                    gridLineWidth: 0,
+                    labels: {
+                        enabled: false
+                    },
+                    title: {
+                        text: null
+                    },
+                    min: null,
+                    max: null,
+                    showFirstLabel: false
+                },
+                tooltip: {
+                    formatter: function() {
+                        return false;
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                credits: {
+                    enabled: false
+                },
+                plotOptions: {
+                    series: {
+                        fillColor: {
+                            linearGradient: [0, 0, 0, 110],
+                            stops: [
+                                [0, '#4572A7'],
+                                [1, 'rgba(0,0,0,0)']
+                            ]
+                        },
+                        lineWidth: 1,
+                        marker: {
+                            enabled: false
+                        },
+                        shadow: false,
+                        states: {
+                            hover: {
+                                lineWidth: 1
+                            }
+                        },
+                        enableMouseTracking: false
+                    }
+                },
+    
+                series: [{
+                    type: 'area',
+                    name: 'Requests/d',
+                    pointInterval: 24 * 3600 * 1000,
+                    pointStart: start.getTime(),
+                    data: data
+                }],
+    
+                exporting: {
+                    enabled: false
+                }
+    
+            }, function(masterChart) {
+                //createDetail(masterChart)
+            })
+            .highcharts(); // return chart instance
+        }
+        
+        drawTimeGraph = function(data) {
+			$('#time-container').highcharts({
+				chart: {
+					type: 'column',
+					margin: [ 50, 50, 100, 80]
+				},
+				title: {
+					text: 'Requests by day time'
+				},
+				xAxis: {
+					categories: ["0:00", "0:30", "1:00", "1:30", "2:00", "2:30", "3:00", "3:30", "4:00", "4:30", "5:00", "5:30", "6:00", "6:30", "7:00", "7:30", "8:00", "8:30", "9:00", "9:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"],
+					labels: {
+						rotation: -45,
+						align: 'right',
+						style: {
+							fontSize: '13px',
+							fontFamily: 'Verdana, sans-serif'
+						}
+					}
+				},
+				yAxis: {
+					min: 0,
+					title: {
+						text: 'Requests'
+					},
+					stackLabels: {
+						enabled: true,
+						style: {
+							fontWeight: 'bold',
+							color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+						}
+					}	
+				},
+				plotOptions: {
+					column: {
+						stacking: 'normal',
+						dataLabels: {
+							enabled: false,
+							color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+						}
+					}
+				},
+				legend: {
+					align: 'right',
+					x: -70,
+					verticalAlign: 'top',
+					y: 20,
+					floating: false,
+					backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColorSolid) || 'white',
+					borderColor: '#CCC',
+					borderWidth: 1,
+					shadow: false
+				},
+				/*series: [{
+					name: 'Requests',
+					data: data[0],
+					pointWidth:null,
+					pointPadding:-0.2,
+					dataLabels: {
+						enabled: true,
+						rotation: -90,
+						color: '#FFFFFF',
+						align: 'right',
+						x: 4,
+						y: 10,
+						style: {
+							fontSize: '10px',
+							fontFamily: 'Verdana, sans-serif',
+							textShadow: '0 0 3px black'
+						}
+					}
+				}]*/
+				series: [{
+					name: 'Mon',
+					data: data[1],
+					pointPadding:-0.1
+				}, {
+					name: 'Tue',
+					data: data[2],
+					pointPadding:-0.1
+				}, {
+					name: 'Wed',
+					data: data[3],
+					pointPadding:-0.1
+				}, {
+					name: 'Thu',
+					data: data[4],
+					pointPadding:-0.1
+				}, {
+					name: 'Fri',
+					data: data[5],
+					pointPadding:-0.1
+				}, {
+					name: 'Sat',
+					data: data[6],
+					pointPadding:-0.1
+				}, {
+					name: 'Sun',
+					data: data[0],
+					pointPadding:-0.1
+				}]
+			});
+		}
+		
+		drawGradeGraph = function(data) {
+			$('#grade-container').highcharts({
+				chart: {
+					plotBackgroundColor: null,
+					plotBorderWidth: null,
+					plotShadow: false
+				},
+				title: {
+					text: 'Requests by grade'
+				},
+				/*tooltip: {
+					pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+				},*/
+				plotOptions: {
+					pie: {
+						allowPointSelect: true,
+						cursor: 'pointer',
+						dataLabels: {
+							enabled: true,
+							color: '#000000',
+							connectorColor: '#000000',
+							format: '<b>{point.name}</b> {point.y} ({point.percentage:.1f}%)'
+						}
+					}
+				},
+				series: [{
+					type: 'pie',
+					name: 'Requests',
+					data: data,
+					innerSize: '50%'
+				}]
+			});
+		}
+		
+		drawVersionGraph = function(data) {
+			$('#version-container').highcharts({
+				chart: {
+					plotBackgroundColor: null,
+					plotBorderWidth: null,
+					plotShadow: false
+				},
+				title: {
+					text: 'Requests by version'
+				},
+				/*tooltip: {
+					pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+				},*/
+				plotOptions: {
+					pie: {
+						allowPointSelect: true,
+						cursor: 'pointer',
+						dataLabels: {
+							enabled: true,
+							color: '#000000',
+							connectorColor: '#000000',
+							format: '<b>{point.name}</b> {point.y} ({point.percentage:.1f}%)'
+						}
+					}
+				},
+				series: [{
+					type: 'pie',
+					name: 'Requests',
+					data: data,
+					innerSize: '50%'
+				}]
+			});
+		}
+        
+        $.getJSON("data?master", function(res) {
+			data = res.data;
+			start = new Date(res.start);
+			end = new Date(res.end);
+			createMaster(data, start, end);
+		});
+    
+        // make the container smaller and add a second container for the master chart
+        var $container = $('#container')
+            .css('position', 'relative');
+    
+        var $masterContainer = $('<div id="master-container">')
+            .css({ position: 'relative', height: 120, width: '50%', minWidth:'835px', marginLeft:'auto', marginRight:'auto' })
+            .appendTo($container);
+        var $textStats = $('<span id="textstats">')
+            .css({ })
+            .appendTo($container);
+        var $detailContainer = $('<div id="time-container">')
+            .css({  width: '50%', minWidth:'835px', marginLeft:'auto', marginRight:'auto' })
+            .appendTo($container);
+        var $pieContainer = $('<div>')
+			.css({width: '50%', minWidth:'835px', marginLeft:'auto', marginRight:'auto'})
+			.appendTo($container);
+        var $detailContainer = $('<div id="grade-container">')
+            .css({width: '50%', float:'left'})
+            .appendTo($pieContainer);
+        var $detailContainer = $('<div id="version-container">')
+            .css({width: '50%', float:'right'})
+            .appendTo($pieContainer);    
+    });	
+            
+	function update(min, max) {
+		masterChart.xAxis[0].removePlotBand('mask-before');
+		masterChart.xAxis[0].addPlotBand({
+			id: 'mask-before',
+			from: start.getTime(),
+			to: min,
+			color: 'rgba(0, 0, 0, 0.1)'
+		});
+
+		masterChart.xAxis[0].removePlotBand('mask-after');
+		masterChart.xAxis[0].addPlotBand({
+			id: 'mask-after',
+			from: max,
+			to: end.getTime(),
+			color: 'rgba(0, 0, 0, 0.1)'
+		});
+		
+		$.getJSON("data?from="+min+"&to="+max, function(res) {
+			drawTimeGraph(res.time);
+			drawGradeGraph(res.grades);
+			drawVersionGraph(res.version);
+			$('#textstats').html('Requests (cleaned): '+res.cleaned +', Unique (IPs): '+res.unique);
+		});
+	}
+	
+	function updatePreset(preset) {
+		
+		date = new Date();
+		now = date.getTime();
+		switch(preset) {
+			case 'all':
+				update(0, now);
+				break;
+			case '1y':
+				update(now - 365*24*60*60*1000, now);
+				break;
+			case '6m':
+				update(now - 182.5*24*60*60*1000, now);
+				break;
+			case '3m':
+				update(now - 90*24*60*60*1000, now);
+				break;
+			case '1m':
+				update(now - 30*24*60*60*1000, now);
+				break;
+			case '1w':
+				update(now - 7*24*60*60*1000, now);
+				break;
+			case 'yesterday':
+				update(now - (date.getHours() * 60*60*1000 + date.getMinutes()*60*1000 + date.getSeconds()*1000) - 24*60*60*1000, now - (date.getHours() * 60*60*1000 + date.getMinutes()*60*1000 + date.getSeconds()*1000));
+				break;
+			case 'intraday':
+				update(now - (date.getHours() * 60*60*1000 + date.getMinutes()*60*1000 + date.getSeconds()*1000), now);
+				break;
+		}
+		
+		return false;
+	}
+	</script>
+</head>
+<body>
+	<h1>Vertretungsplan-App: Statistiken</h1>
+	<span id="presets">
+		<a href="#" onclick="updatePreset('all')">All time</a>|<a href="#" onclick="updatePreset('1y')">Last year</a>|<a href="#" onclick="updatePreset('6m')">Last 6 months</a>|<a href="#" onclick="updatePreset('3m')">Last 3 months</a>|<a href="#" onclick="updatePreset('1m')">Last month</a>|<a href="#" onclick="updatePreset('1w')">Last week</a>|<a href="#" onclick="updatePreset('yesterday')">Yesterday</a>|<a href="#" onclick="updatePreset('intraday')">Intraday</a>
+	</span>
+	<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+</body>
+</html>
