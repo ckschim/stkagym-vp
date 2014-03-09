@@ -48,18 +48,19 @@ var analyze = function(data){
 	//Counting
 	
 	var counts_ip = {};
-	var counts_grade = {};
-	var counts_time = {};
+	var counts_grade = {"05":0, "06":0, "07":0, "08":0, "09":0, "EF":0, "Q1":0, "Q2":0};
+	//var counts_time = {"0-1":0,"1-2":0,"2-3":0,"3-4":0,"4-5":0,"5-6":0,"6-7":0,"7-8":0,"8-9":0,"9-10":0,"10-11":0,"11-12":0,"12-13":0,"13-14":0,"14-15":0,"15-16":0,"16-17":0,"17-18":0,"18-19":0,"19-20":0,"20-21":0,"21-22":0,"22-23":0,"23-24":0};
+	counts_time = {}
 	var counts_cache = {};
 	for (var i = 0; i < cleaned.length; i++) {
 		//Count unique IPs
 		counts_ip[cleaned[i].ip] = 1 + (counts_ip[cleaned[i].ip] || 0);
 		
 		//Count grades
-		counts_grade[cleaned[i].grade] = 1 + (counts_grade[cleaned[i].grade] || 0);
+		counts_grade[cleaned[i].grade.substring(0,2)] = 1 + (counts_grade[cleaned[i].grade.substring(0,2)] || 0);
 		
 		//Count times
-		time = cleaned[i].time.getHours() + '-' + (parseInt(cleaned[i].time.getHours())+1);
+		time = cleaned[i].time.getHours() + ':' + (Math.floor(cleaned[i].time.getMinutes()/30)==0?'00':'30') + '-' + (parseInt(cleaned[i].time.getHours()*6 + Math.floor(cleaned[i].time.getMinutes()/10))+1);
 		counts_time[time] = 1 + (counts_time[time] || 0);
 		
 		//Count cache hits
@@ -74,7 +75,20 @@ var emit = function(stats) {
 	console.log("Total: "+stats.total);
 	console.log("Cleaned: "+stats.cleaned);
 	console.log("Unique: "+stats.unique);
-	console.log("Grades: "+JSON.stringify(stats.grades));
-	console.log("Times: "+JSON.stringify(stats.time));
+	keys = Object.keys(stats.grades);
+	arr = []
+	for(k in keys) {
+		arr.push([keys[k], stats.grades[keys[k]]]);
+	}
+	console.log("Grades: "+JSON.stringify(arr));
+	keys = Object.keys(stats.time);
+	arr = []
+	for(k in keys) {
+		arr.push([parseInt(keys[k]), stats.time[keys[k]]]);
+	}
+	/*for(k in arr) {
+		arr[k] = [Math.floor(arr[k][0]/2) + ":" + (arr[k][0] % 2)*30, arr[k][1]] 
+	}*/
+	console.log("Times: "+JSON.stringify(arr));
 	console.log("Cache states: "+JSON.stringify(stats.cache));
 }
