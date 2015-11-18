@@ -1,4 +1,3 @@
-stkagym-vp
-==========
-
-Vertretungsplan App
+# Vertretungsplan App
+==================
+*Vertretungsplan App für das* **Städtische Gymnasium Kamen***.*
